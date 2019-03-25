@@ -1,7 +1,7 @@
 from django.db import models
 
 from wagtail.core.models import Page
-from wagtail.core.fields import RichTextField
+from wagtail.core.fields import RichTextField, StreamField
 
 from wagtail.admin.edit_handlers import (
     FieldPanel,
@@ -15,6 +15,36 @@ from wagtail.admin.edit_handlers import (
 from wagtail.snippets.models import register_snippet
 from wagtail.images.edit_handlers import ImageChooserPanel
 
+from .blocks import HeaderBlock
+
+@register_snippet
+class Header(models.Model):
+    """
+    This provides editable site header. Again it uses the decorator
+    `register_snippet` to allow it to be accessible via the admin. It is made
+    accessible on the template via a template tag defined in home/templatetags/
+    navigation_tags.py
+    """
+
+    site_title = StreamField([
+        ("Site_Title", HeaderBlock()),
+    ], null=True)
+
+    header_links = StreamField([
+        ("Header_Link", HeaderBlock()),
+    ])
+
+    panels = [
+        StreamFieldPanel('site_title'),
+        StreamFieldPanel('header_links')
+    ]
+
+    def __str__(self):
+        return "Header text"
+
+    class Meta:
+        verbose_name_plural = 'Header Text'
+
 @register_snippet
 class FooterText(models.Model):
     """
@@ -24,7 +54,12 @@ class FooterText(models.Model):
     navigation_tags.py
     """
     body = RichTextField()
-    footer_link = RichTextField()
+    footer_link = models.CharField(
+        null=True,
+        blank=True,
+        max_length=255,
+        help_text='Link to outward sites.'
+    )
 
     panels = [
         FieldPanel('body'),

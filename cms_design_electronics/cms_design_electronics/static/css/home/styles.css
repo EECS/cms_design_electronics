@@ -1,0 +1,154 @@
+body{
+    text-align: center;
+    font-family: "Whitney SSm A", "Whitney SSm B", "Lato", "Lucida Grande", "Lucida Sans Unicode", Tahoma, Sans-Serif;
+    font-weight: 100;
+    margin: 0;
+    min-width:1000px;
+}
+
+a{
+    color: black;
+    text-decoration: none;
+}
+
+img{
+    max-width: 100%;
+}
+
+strong{
+    display: none;
+}
+
+ul {
+    padding: 0px;
+}
+
+li {
+    list-style-type: none;
+    padding: 10%;
+}
+
+.flex{
+    display: flex;
+}
+
+.error{
+    color: red;
+}
+
+.flex-space-around{
+    display: flex;
+    justify-content: space-around;
+}
+
+.flex-space-between{
+    display: flex;
+    justify-content: space-between;
+}
+
+.flex-center{
+    display: flex;
+    justify-content: center;
+}
+
+.title-case{
+    text-transform: capitalize;
+}
+
+.input {
+    height: 100%;
+}
+
+.left-align {
+    margin-right: auto;
+}
+
+.right-align {
+    margin-left: auto;
+}
+.half-width {
+    width: 50%;
+}
+
+form{
+    margin: 0 auto;
+    width: 50%;
+}
+
+.sidebar-font{
+    font-size: 18px;
+}
+
+.sidebar-font-active{
+    font-weight: bold;
+}
+
+.left-text{
+    text-align: left;
+}
+
+.fixed{
+    position: fixed;
+}
+
+.black-border{
+    border-style: solid;
+    border-color:black;
+    border-width: 1px;
+}
+
+.black-bottom-border{
+    border-bottom-style: solid;
+    border-bottom-color:black;
+    border-bottom-width: 1px;
+}
+
+.grey-bottom-border{
+    border-bottom-style: solid;
+    border-bottom-color:grey;
+    border-bottom-width: 1px;
+}
+
+.right-hdr-btns{
+    padding: 0px 20px;
+}
+
+.fixed-parent{
+    position: fixed;
+    width:100%;
+    z-index:20;
+}
+
+.white-background{
+    background-color: white;
+}
+
+.margin-five{
+    margin-left:5%;
+    margin-right:5%;
+}
+
+.margin-header{
+    margin-top: 5%;
+}
+
+.min-width{
+    min-width: 1000px;
+}
+
+#header-row{
+    font-size: x-large;
+    width: 90%;
+}
+
+#header-support{
+    display: flex;
+}
+
+#ee-content{
+    margin: 10%;
+}
+
+#contact-row-content{
+    padding: 5% 20%;
+}

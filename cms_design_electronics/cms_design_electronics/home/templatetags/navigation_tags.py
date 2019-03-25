@@ -2,7 +2,8 @@ from django import template
 
 from wagtail.core.models import Page
 
-from cms_design_electronics.home.models import FooterText
+from cms_design_electronics.home.models import FooterText, Header
+import pdb
 
 register = template.Library()
 # https://docs.djangoproject.com/en/1.9/howto/custom-template-tags/
@@ -35,9 +36,39 @@ def is_active(page, current_page):
 @register.inclusion_tag('tags/footer_text.html', takes_context=True)
 def get_footer_text(context):
     footer_text = ""
+    footer_link = ""
     if FooterText.objects.first() is not None:
         footer_text = FooterText.objects.first().body
+        footer_link = FooterText.objects.first().footer_link
 
     return {
         'footer_text': footer_text,
+        'footer_link': footer_link,
+    }
+
+@register.inclusion_tag('blocks/header.html', takes_context=True)
+def get_header_text(context):
+
+    if Header.objects.first() is not None:
+        site_title_block = Header.objects.first().site_title
+        header_links_blocks = Header.objects.first().header_links
+
+        heading_idx = 0
+        url_idx = 1
+
+        headings = []
+        urls = []
+
+        for block in site_title_block:
+            site_heading = block.value[heading_idx].value
+            site_url = block.value[url_idx].value
+        
+        for block in header_links_blocks:
+            headings.append(block.value[heading_idx].value)
+            urls.append(block.value[url_idx].value)
+
+    return {
+        'site_heading': site_heading,
+        'site_url': site_url,
+        'headings_urls': zip(headings, urls)
     }

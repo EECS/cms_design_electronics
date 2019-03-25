@@ -4,33 +4,10 @@
     Load wagtail core template tags and custom defined
     navigation tags.
 -->
-{% load wagtailcore_tags navigation_tags %}
+{% load wagtailcore_tags navigation_tags wagtailimages_tags  %}
 
 {% block title %}
 <title>{{page.site_title}}</title>
-
-{% endblock %}
-
-{% block header %}
-
-<div id = "site-title"class="col-6">
-    <div id="home-button" type="button"> <a href="#home-row">{{page.site_title}}</a></div>
-</div>
-
-<div id="header-support" class="col-6">
-  <div class="right-hdr-btns"> <a href="#content-row"> Content </a></div>
-  <div class="right-hdr-btns"><a href="#example-design">Example Design</a></div>
-
-  {% if show_testimonials %}
-  <div class="right-hdr-btns"> <a href="">Testimonials</a></div>
-  {% endif %}
-
-  <div class="right-hdr-btns"><a href="{{ design_center_url }}">Design Center</a></div>
-  <div class="right-hdr-btns"><a href="#contact-row">Contact</a></div>
-  {% if paid_site%}
-  <div class="right-hdr-btns">Try Free for {{trial_length}} Days </div>
-  {% endif %}
-</div>
 
 {% endblock %}
 
@@ -43,19 +20,13 @@
     </div>
 
     <div id="home-row-picture">
-      <img src="{{ static }}landing_page/img/ccm-buck-converter.jpg" alt="Buck Converter" height="400 px">
+        <figure>
+            {% image page.promo_image height-400 %}
+        </figure>
     </div>
 
     <div>
-        <h2>
-            {{page.promo_text|richtext }}
-        </h2>
-        <br>
-        {% if paid_site%}
-            <button type="button" class="btn btn-primary">Try Free for {{trial_length}} Days</button>
-            <br>
-            <p>or <u>purchase now</u>.</p>
-        {% endif %}
+        {{page.promo_text|richtext }}
     </div>
 
 </div>
@@ -73,7 +44,4 @@
 <div id="content-row-content">
     {{page.site_blurb|richtext }}
 </div>
-{% endblock %}
-
-{% block contact_row %}
 {% endblock %}

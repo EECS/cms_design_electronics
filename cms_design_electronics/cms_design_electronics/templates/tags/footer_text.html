@@ -1,6 +1,8 @@
+{% load wagtailcore_tags %}
+
 <div id="contact-row-content">
-    <h4>{{get_footer_text.body}}</h4>
-    <a href= "{{get_footer_text.footer_link}}" target="_blank">
+    <h4>{{ footer_text|richtext }}</h4>
+    <a href= "{{ footer_link }}" target="_blank">
         <i class="fab fa-linkedin fa-7x"></i>
     </a>
 </div>
