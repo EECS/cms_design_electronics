@@ -1,0 +1,79 @@
+{% extends "includes/home_base.html" %}
+
+<!-- 
+    Load wagtail core template tags and custom defined
+    navigation tags.
+-->
+{% load wagtailcore_tags navigation_tags %}
+
+{% block title %}
+<title>{{page.site_title}}</title>
+
+{% endblock %}
+
+{% block header %}
+
+<div id = "site-title"class="col-6">
+    <div id="home-button" type="button"> <a href="#home-row">{{page.site_title}}</a></div>
+</div>
+
+<div id="header-support" class="col-6">
+  <div class="right-hdr-btns"> <a href="#content-row"> Content </a></div>
+  <div class="right-hdr-btns"><a href="#example-design">Example Design</a></div>
+
+  {% if show_testimonials %}
+  <div class="right-hdr-btns"> <a href="">Testimonials</a></div>
+  {% endif %}
+
+  <div class="right-hdr-btns"><a href="{{ design_center_url }}">Design Center</a></div>
+  <div class="right-hdr-btns"><a href="#contact-row">Contact</a></div>
+  {% if paid_site%}
+  <div class="right-hdr-btns">Try Free for {{trial_length}} Days </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block home %}
+<div id="home-row-content" class="justify-center">
+    <div>
+        <h1>
+            {{page.promo_title}}
+        </h1>
+    </div>
+
+    <div id="home-row-picture">
+      <img src="{{ static }}landing_page/img/ccm-buck-converter.jpg" alt="Buck Converter" height="400 px">
+    </div>
+
+    <div>
+        <h2>
+            {{page.promo_text|richtext }}
+        </h2>
+        <br>
+        {% if paid_site%}
+            <button type="button" class="btn btn-primary">Try Free for {{trial_length}} Days</button>
+            <br>
+            <p>or <u>purchase now</u>.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div id="content-row-header">
+    <h3>
+        {{page.site_blurb_title}}
+    </h3>
+</div>
+
+<!-- Featured sections portion of the landing page. -->
+<div id="content-row-content">
+    {{page.site_blurb|richtext }}
+</div>
+{% endblock %}
+
+{% block contact_row %}
+{% endblock %}
