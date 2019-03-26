@@ -24,9 +24,11 @@ class DCDCType(models.Model):
     """
 
     title = models.CharField(max_length=100)
+    sidebar_title = models.TextField(default="Continuous Conduction Mode",
+    help_text="Enter the title of the converter for the sidebar.")
 
     def __str__(self):
-        return self.title
+        return self.title+", "+self.sidebar_title
 
     class Meta:
         verbose_name = "DC/DC Converter Types (CCM vs. DCM)"
@@ -135,7 +137,8 @@ class DCDC(Page):
     Detail view for a DC/DC converter.
     """
     name = models.TextField(
-        help_text='Name of the DC/DC converter.',
+        help_text='Name of the DC/DC converter. Just "Buck" or "Boost" etc. '+
+        "This will be used in the sidebar.",
         blank=True)
 
     image = models.ForeignKey(
@@ -193,4 +196,4 @@ class DCDC(Page):
         verbose_name_plural = "DC/DC Converters"
     
     def __str__(self):
-        return self.name
+        return self.converter_type.title+", "+self.name

@@ -25,6 +25,12 @@ class Header(models.Model):
     accessible on the template via a template tag defined in home/templatetags/
     navigation_tags.py
     """
+    path_info = models.CharField(max_length=100, 
+                help_text="Fill in the relative path info for current header.",
+                default="/")
+
+    header_name = models.TextField(help_text="Fill in the page for which this header exists.",
+    default="Default.")
 
     site_title = StreamField([
         ("Site_Title", HeaderBlock()),
@@ -35,15 +41,17 @@ class Header(models.Model):
     ])
 
     panels = [
+        FieldPanel('path_info'),
+        FieldPanel('header_name'),
         StreamFieldPanel('site_title'),
         StreamFieldPanel('header_links')
     ]
 
     def __str__(self):
-        return "Header text"
+        return "Header text for {}".format(self.header_name)
 
     class Meta:
-        verbose_name_plural = 'Header Text'
+        verbose_name = 'Header Text'
 
 @register_snippet
 class FooterText(models.Model):

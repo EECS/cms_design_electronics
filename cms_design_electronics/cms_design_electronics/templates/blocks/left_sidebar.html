@@ -1,0 +1,24 @@
+<div class="wrapper sidebar-font">
+    <nav id="sidebar">
+        <ul>
+            {% for design in pe_design%}
+                <li>{{design}}</li>
+                <ul>
+                    {% for dcdc_sidebar in dcdc_sidebar_designs%}
+                        <li>{{dcdc_sidebar}}</li>
+                        <ul>
+                            {% for ct in converter_types%}
+                                <li>{{ct}}</li>
+                                <ul>
+                                    {% for dcdc_slug, dcdc in dcdc_designs%}
+                                        <li><a class="sidebar-font" href="{{dcdc_slug}}">{{dcdc}}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </ul>
+    </nav>
+</div>

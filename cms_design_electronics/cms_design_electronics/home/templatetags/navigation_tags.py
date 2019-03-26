@@ -3,6 +3,8 @@ from django import template
 from wagtail.core.models import Page
 
 from cms_design_electronics.home.models import FooterText, Header
+
+from cms_design_electronics.dcdc_converters.models import DCDC
 import pdb
 
 register = template.Library()
@@ -50,8 +52,10 @@ def get_footer_text(context):
 def get_header_text(context):
 
     if Header.objects.first() is not None:
-        site_title_block = Header.objects.first().site_title
-        header_links_blocks = Header.objects.first().header_links
+        path_info = context["request"].path_info
+        filtered_object = Header.objects.filter(path_info = path_info)[0]
+        site_title_block = filtered_object.site_title
+        header_links_blocks = filtered_object.header_links
 
         heading_idx = 0
         url_idx = 1
@@ -67,8 +71,38 @@ def get_header_text(context):
             headings.append(block.value[heading_idx].value)
             urls.append(block.value[url_idx].value)
 
+        return {
+            'site_heading': site_heading,
+            'site_url': site_url,
+            'headings_urls': zip(headings, urls)
+        }
+
+@register.inclusion_tag('blocks/left_sidebar.html', takes_context=True)
+def get_left_sidebar(context):
+    '''
+    Generates the left sidebar for the design center.
+    Power electronics will have the following format:
+    pe_design List: ["Power Electronics"]
+    dcdc_sidebar_designs List: ["DC/DC Converters"]
+    converter_types List: ["Continuous Conduction Mode"]
+    Subset of Design type List: ["CCM Buck Converter"]
+    '''
+
+    dcdc_objects = DCDC.objects.all()
+    pe_design = ["Power Electronics"]
+    dcdc_sidebar_designs = ["DC/DC Converters"]
+    converter_types = []
+    dcdc_designs = []
+    dcdc_designs_slugs = []
+
+    for design in dcdc_objects:
+        converter_types.append(design.converter_type.sidebar_title)
+        dcdc_designs.append(design.name)
+        dcdc_designs_slugs.append(design.slug)
+
     return {
-        'site_heading': site_heading,
-        'site_url': site_url,
-        'headings_urls': zip(headings, urls)
+        'pe_design': pe_design,
+        'dcdc_sidebar_designs': dcdc_sidebar_designs,
+        'converter_types': converter_types,
+        'dcdc_designs': zip(dcdc_designs_slugs, dcdc_designs)
     }
