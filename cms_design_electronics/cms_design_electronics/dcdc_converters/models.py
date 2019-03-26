@@ -137,7 +137,7 @@ class DCDC(Page):
     Detail view for a DC/DC converter.
     """
     name = models.TextField(
-        help_text='Name of the DC/DC converter. Just "Buck" or "Boost" etc. '+
+        help_text='Name of the DC/DC converter. Just "Buck Converter" or "Boost" etc. '+
         "This will be used in the sidebar.",
         blank=True)
 

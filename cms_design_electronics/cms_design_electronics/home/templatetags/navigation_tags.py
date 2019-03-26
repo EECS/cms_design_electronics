@@ -10,6 +10,17 @@ import pdb
 register = template.Library()
 # https://docs.djangoproject.com/en/1.9/howto/custom-template-tags/
 
+def get_absolute_url(context, slug):
+    '''
+    Given a slug, builds the absolute URL for a link.
+    Solves the issue of sending a link to "design-center"
+    to "design-center/design-center".
+    '''
+
+    if slug == context["request"].get_full_path():
+        return context["request"].build_absolute_uri()
+    else:
+        return slug
 
 @register.simple_tag(takes_context=True)
 def get_site_root(context):
@@ -65,11 +76,11 @@ def get_header_text(context):
 
         for block in site_title_block:
             site_heading = block.value[heading_idx].value
-            site_url = block.value[url_idx].value
+            site_url = get_absolute_url(context, block.value[url_idx].value)
         
         for block in header_links_blocks:
             headings.append(block.value[heading_idx].value)
-            urls.append(block.value[url_idx].value)
+            urls.append(get_absolute_url(context, block.value[url_idx].value))
 
         return {
             'site_heading': site_heading,
