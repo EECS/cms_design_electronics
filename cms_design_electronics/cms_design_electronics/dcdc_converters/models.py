@@ -130,7 +130,7 @@ class OpenLoopEquations(models.Model):
     class Meta:
         verbose_name_plural = "DC/DC Converter Open Loop Design Equations"
 
-class DCDCPage(Page):
+class DCDC(Page):
     """
     Detail view for a DC/DC converter.
     """
@@ -187,3 +187,10 @@ class DCDCPage(Page):
             classname="collapsible"
         ),
     ]
+
+    class Meta:
+        verbose_name = "DC/DC Converters"
+        verbose_name_plural = "DC/DC Converters"
+    
+    def __str__(self):
+        return self.name
