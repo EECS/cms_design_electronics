@@ -17,7 +17,11 @@ def get_absolute_url(context, slug):
     to "design-center/design-center".
     '''
 
-    if slug == context["request"].get_full_path():
+    #pdb.set_trace()
+    current_path = context["request"].get_full_path()
+    slug_path = "/{}/".format(slug)
+
+    if current_path == slug_path:
         return context["request"].build_absolute_uri()
     else:
         return slug
@@ -64,6 +68,12 @@ def get_header_text(context):
 
     if Header.objects.first() is not None:
         path_info = context["request"].path_info
+        
+        #Return the design center header if it is not the landing page.
+        if path_info != "/":
+            path_info = path_info.split("/")[1]
+
+        #pdb.set_trace()
         filtered_object = Header.objects.filter(path_info = path_info)[0]
         site_title_block = filtered_object.site_title
         header_links_blocks = filtered_object.header_links
@@ -109,7 +119,7 @@ def get_left_sidebar(context):
     for design in dcdc_objects:
         converter_types.append(design.converter_type.sidebar_title)
         dcdc_designs.append(design.name)
-        dcdc_designs_slugs.append(design.slug)
+        dcdc_designs_slugs.append(get_absolute_url(context, design.slug))
 
     return {
         'pe_design': pe_design,
