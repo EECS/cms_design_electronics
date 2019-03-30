@@ -26,8 +26,6 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 INSTALLED_APPS = [
     "cms_design_electronics.home",
     "cms_design_electronics.search",
-    "cms_design_electronics.dcdc_converters",
-    "cms_design_electronics.design_center",
 
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
