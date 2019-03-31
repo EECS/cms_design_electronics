@@ -26,7 +26,9 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 INSTALLED_APPS = [
     "cms_design_electronics.home",
     "cms_design_electronics.search",
+    "cms_design_electronics.site_settings",
 
+    'wagtail.contrib.settings',
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.embeds',
@@ -78,6 +80,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                #To use settings in the template
+                'wagtail.contrib.settings.context_processors.settings',
             ],
         },
     },
