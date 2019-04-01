@@ -24,6 +24,8 @@ BASE_DIR = os.path.dirname(PROJECT_DIR)
 # Application definition
 
 INSTALLED_APPS = [
+    "cms_design_electronics.dcdc",
+    "cms_design_electronics.snippets",
     "cms_design_electronics.home",
     "cms_design_electronics.search",
     "cms_design_electronics.site_settings",
