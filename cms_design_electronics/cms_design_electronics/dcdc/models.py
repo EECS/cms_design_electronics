@@ -28,6 +28,13 @@ class DcdcPage(Page):
 
     template = "dcdc/dcdc_page.html"
 
+    design_name = models.CharField(
+        max_length=75,
+        blank=False, 
+        null=True,
+        verbose_name="DC/DC Converter Name",
+    )
+
     design_description = StreamField([
         ("description", blocks.RichtextBlock()),
     ], null=True, blank=False, verbose_name="Design Description")
@@ -87,6 +94,7 @@ class DcdcPage(Page):
     content_panels = Page.content_panels + [
         MultiFieldPanel(
             [
+                FieldPanel("design_name"),
                 StreamFieldPanel("design_description"),
                 ImageChooserPanel("design_image"),
                 FieldPanel("dcdc_type"),
@@ -114,3 +122,6 @@ class DcdcPage(Page):
 
         verbose_name = "DC/DC Converter Page"
         verbose_name_plural = "DC/DC Converter Pages"
+
+    def __str__(self):
+        return self.design_name

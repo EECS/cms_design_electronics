@@ -6,6 +6,12 @@ from wagtail.admin.edit_handlers import (
 
 from wagtail.snippets.models import register_snippet
 
+UNITS = (
+    ("Switching Frequency", "kHz", 1e3),
+    ("Inductance", "microHenries", 1e-6),
+    ("Capacitance", "microFarads", 1e-6),
+)
+
 @register_snippet
 class DCDCDesignParam(models.Model):
     """
@@ -126,7 +132,7 @@ class DCDCDesignEquations(models.Model):
                 )
 
     def __str__(self):
-        return "{}, {}".format(description, converter)
+        return "{}, {}".format(self.description, self.converter)
 
     class Meta:
         verbose_name = "DC/DC Converter Design Equation for Analysis"
@@ -162,7 +168,7 @@ class DCDCOpenLoopEquations(models.Model):
                 )
 
     def __str__(self):
-        return "{}, {}".format(description, converter)
+        return "{}, {}".format(self.description, self.converter)
 
     class Meta:
         verbose_name = "DC/DC Converter Open Loop Design Equation"

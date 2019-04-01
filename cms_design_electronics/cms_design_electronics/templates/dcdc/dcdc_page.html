@@ -1,23 +1,100 @@
-{% extends 'base.html' %}
-{% load wagtailcore_tags %}
+{% extends 'base_design.html' %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block content %}
 
     <div class="container mt-5 mb-5">
-        <h1>{{ page.title }}</h1>
-        <p>
-            {{ self.intro|richtext }}
-        </p>
+        <div class="text-center">
+            <h1>{{ page.design_name }}</h1>
+        </div>
 
+        <div class="text-center">
+            {% image page.design_image original as img %}
+            <img src="{{img.url}}" class="img-fluid" alt="{{img.alt}}" style="mix-blend-mode: multiply"/>
+        </div>
+
+        {# Add streamfield blocks to welcome page. #}
+        {% for block in page.design_description %}
+            {% include_block block %}
+        {% endfor %}
+
+
+        {# Add design parameter input form. #}
+        <div class="text-center">
+            <h3>Design Parameters</h3>
+        </div>
         <form action="{% pageurl page %}" method="POST">
             {% csrf_token %}
-            <ul class="contact-form">
-                {{ form.as_ul }}
-            </ul>
+            <fieldset>
+            {% for parameter in page.design_params.all %}
+                <div class="form-group">
+                    <label for="design_parameter_{{parameter}}">{{parameter}}</label>
+                    <input type="number" class="form-control" id="design_parameter_{{parameter}}" placeholder="Enter value for {{parameter}}." required>
+                </div>
+            {% endfor %}
 
             <button type="submit" class="btn btn-outline-primary">
-                Submit Form
+                Generate Recommended Components
             </button>
+            </fieldset>
+        </form>
+
+        {# Add recommended components output form. #}
+        <div class="text-center">
+            <h3>Recommended Components</h3>
+        </div>
+        <form action="{% pageurl page %}" method="GET">
+            {% csrf_token %}
+            <fieldset>
+            {% for component in page.recommended_components.all %}
+                <div class="form-group">
+                    <label for="rec_component_{{component}}">{{component.abbreviation}}</label>
+                    <big class="form-text">{{component.equation}}</big>
+                    <input readOnly="" class="form-control" id="rec_component_{{component}}" placeholder="Generate recommended components to view results." required>
+                </div>
+            {% endfor %}
+            </fieldset>
+        </form>
+
+        {# Add selected components input form. #}
+        <div class="text-center">
+            <h3>Selected Components</h3>
+        </div>
+        <form action="{% pageurl page %}" method="POST">
+            {% csrf_token %}
+            <fieldset>
+            {% for sel_component in page.selected_components.all %}
+                <div class="form-group">
+                    <label for="sel_component_{{sel_component}}">{{sel_component}}</label>
+                    <input type="number" class="form-control" id="sel_component_{{sel_component}}" placeholder="Enter value for {{sel_component}}." required>
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-outline-primary">
+                Generate Converter Analysis
+            </button>
+            </fieldset>
+        </form>
+
+        {# Add design equations output form. #}
+        <div class="text-center">
+            <h3>Converter Analysis</h3>
+        </div>
+        <form action="{% pageurl page %}" method="POST">
+            {% csrf_token %}
+            <fieldset>
+            {% for equation in page.design_equations.all %}
+                <div class="form-group">
+                    <label for="design_equation_{{equation.description}}">{{equation.description}}</label>
+                    <big class="form-text">{{equation.equation}}</big>
+                    <input readOnly="" class="form-control" id="rec_component_{{component}}" placeholder="Generate converter analysis to view results." required>
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-outline-primary">
+                Generate Open Loop Transfer Functions
+            </button>
+            </fieldset>
         </form>
     </div>
 
