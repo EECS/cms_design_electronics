@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "cms_design_electronics.home",
     "cms_design_electronics.search",
     "cms_design_electronics.site_settings",
+    "cms_design_electronics.contact",
 
     'wagtail.contrib.settings',
     'wagtail.contrib.forms',
@@ -50,6 +51,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'captcha',
+    'wagtailcaptcha',
 ]
 
 MIDDLEWARE = [
@@ -165,3 +169,10 @@ WAGTAIL_SITE_NAME = "cms_design_electronics"
 # Base URL to use when referring to full URLs within the Wagtail admin backend -
 # e.g. in notification emails. Don't include '/admin' or a trailing slash
 BASE_URL = 'http://example.com'
+
+# Recaptcha settings
+# This key only allows localhost. For production, you'll want your own API keys.
+# You can get Recaptcha API key from google.com/recaptcha
+RECAPTCHA_PUBLIC_KEY = "6LdmJ5sUAAAAADmwvQfTZURLAeljDxwBqc5-LHGe"
+RECAPTCHA_PRIVATE_KEY = "6LdmJ5sUAAAAANsmcYevJDp4ne2Kk9IfB-K2ZQRq"
+NOCAPTCHA = True
