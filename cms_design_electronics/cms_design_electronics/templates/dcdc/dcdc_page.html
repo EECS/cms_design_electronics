@@ -23,19 +23,19 @@
         <div class="text-center">
             <h3>Design Parameters</h3>
         </div>
-        <form action="{% pageurl page %}" method="POST">
+        <form method="POST" id="generateRecommendedComponents">
             {% csrf_token %}
             <fieldset>
             {% for parameter in page.design_params.all %}
                 <div class="form-group">
-                    <label for="design_parameter_{{parameter}}">{{parameter}}</label>
-                    <input type="number" class="form-control" id="design_parameter_{{parameter}}" placeholder="Enter value for {{parameter}}." required>
+                    <label for="design_parameter_{{parameter.abbreviation}}">{{parameter}}</label>
+                    <input type="number" class="form-control" id="design_parameter_{{parameter.abbreviation}}" name="design_parameter_{{parameter.abbreviation}}"
+                            placeholder="Enter value for {{parameter}}." required>
                 </div>
             {% endfor %}
-
-            <button type="submit" class="btn btn-outline-primary">
-                Generate Recommended Components
-            </button>
+            
+            <input type="hidden" name="generateRecommendedComponents">
+            <input type="submit" class="btn btn-outline-primary" value="Generate Recommended Components">
             </fieldset>
         </form>
 
@@ -43,14 +43,14 @@
         <div class="text-center">
             <h3>Recommended Components</h3>
         </div>
-        <form action="{% pageurl page %}" method="GET">
+        <form method="GET">
             {% csrf_token %}
             <fieldset>
             {% for component in page.recommended_components.all %}
                 <div class="form-group">
-                    <label for="rec_component_{{component}}">{{component.abbreviation}}</label>
+                    <label for="rec_component_{{component.abbreviation}}">{{component.abbreviation}}</label>
                     <big class="form-text">{{component.equation}}</big>
-                    <input readOnly="" class="form-control" id="rec_component_{{component}}" placeholder="Generate recommended components to view results." required>
+                    <input readOnly="" class="form-control" id="rec_component_{{component.abbreviation}}" placeholder="Generate recommended components to view results." required>
                 </div>
             {% endfor %}
             </fieldset>
@@ -60,19 +60,19 @@
         <div class="text-center">
             <h3>Selected Components</h3>
         </div>
-        <form action="{% pageurl page %}" method="POST">
+        <form method="POST" id="generateConverterAnalysis">
             {% csrf_token %}
             <fieldset>
             {% for sel_component in page.selected_components.all %}
                 <div class="form-group">
                     <label for="sel_component_{{sel_component}}">{{sel_component}}</label>
-                    <input type="number" class="form-control" id="sel_component_{{sel_component}}" placeholder="Enter value for {{sel_component}}." required>
+                    <input type="number" class="form-control" id="sel_component_{{sel_component}}" 
+                        name="sel_component_{{sel_component}}" placeholder="Enter value for {{sel_component}}." required>
                 </div>
             {% endfor %}
 
-            <button type="submit" class="btn btn-outline-primary">
-                Generate Converter Analysis
-            </button>
+            <input type="hidden" name="generateConverterAnalysis">
+            <input type="submit" class="btn btn-outline-primary" value="Generate Converter Analysis">
             </fieldset>
         </form>
 
@@ -80,7 +80,7 @@
         <div class="text-center">
             <h3>Converter Analysis</h3>
         </div>
-        <form action="{% pageurl page %}" method="POST">
+        <form id="generateOpenLoopTransfers" method="POST">
             {% csrf_token %}
             <fieldset>
             {% for equation in page.design_equations.all %}
@@ -97,5 +97,42 @@
             </fieldset>
         </form>
     </div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script type="text/javascript">
+
+(function($) {
+    $.fn.autosubmit = function() {
+        this.submit(function(event) {
+            event.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function(json){
+                    console.log(json);
+                },
+                error: function(list){
+
+                }
+            }).done(function(data) {
+
+            }).fail(function(data) {
+        // Optionally alert the user of an error here...
+            });
+        });
+        return this;
+    }
+})(jQuery)
+
+$(function() {
+    $('#generateRecommendedComponents').autosubmit();
+});
+
+</script>
 
 {% endblock %}

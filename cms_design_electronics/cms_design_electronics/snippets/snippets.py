@@ -6,11 +6,7 @@ from wagtail.admin.edit_handlers import (
 
 from wagtail.snippets.models import register_snippet
 
-UNITS = (
-    ("Switching Frequency", "kHz", 1e3),
-    ("Inductance", "microHenries", 1e-6),
-    ("Capacitance", "microFarads", 1e-6),
-)
+from ..utils.utils import UNITS
 
 @register_snippet
 class DCDCDesignParam(models.Model):

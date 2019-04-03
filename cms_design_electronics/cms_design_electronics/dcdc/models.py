@@ -1,5 +1,6 @@
 from django import forms
 from django.db import models
+from django.http import JsonResponse
 
 from modelcluster.fields import ParentalManyToManyField
 
@@ -17,11 +18,23 @@ from wagtail.images.edit_handlers import ImageChooserPanel
 
 from ..streams import blocks
 from ..snippets import snippets
+from ..utils import utils
+
+import pdb
+
+#Ajax support for webpage
+import json
+from django.http import HttpResponse
 
 DCDC_CURRENT_TYPE = (
     ("ccm", "Continuous Conduction Mode"),
     ("dcm", "Discontinuous Conduction Mode"),
 )
+
+HTML_GEN_COMPONENTS_ID="generateRecommendedComponents"
+HTML_GEN_COMPONENTS_TAG="design_parameter_"
+HTML_GEN_ANALYSIS_ID="generateConverterAnalysis"
+HTML_GEN_ANALYSIS_TAG="sel_component_"
 
 class DcdcPage(Page):
     """DC/DC Converter page model."""
@@ -125,3 +138,48 @@ class DcdcPage(Page):
 
     def __str__(self):
         return self.design_name
+    
+    def serve(self, request):
+        if request.is_ajax():
+            generated_components = "generated_components"
+            rec_components = "recommended_components"
+            generated_analysis = "generated_analysis"
+            csrftoken = "csrfmiddlewaretoken"
+
+            #Generate recommended components
+            if HTML_GEN_COMPONENTS_ID in request.POST:
+                
+                #Filter to get only parameters for analysis.
+                #form keys are in the form of design_parameter_PARAM: value
+                #this trims it to PARAM: cleaned_value
+                cleaned_params = {key[len(HTML_GEN_COMPONENTS_TAG):]:utils.clean_dcdc_form(HTML_GEN_COMPONENTS_TAG, int(value), key) \
+                    for (key, value) in request.POST.items() if key != csrftoken and key != HTML_GEN_COMPONENTS_ID}
+
+                if False in cleaned_params.values():
+                    pass #todo throw error
+                
+                context = self.get_context(request)
+                components = utils.calculate_dcdc_components(cleaned_params, self.recommended_components)
+                
+                context.update({rec_components:components})
+                context.update({"generated_components": True})
+
+                return JsonResponse(context[rec_components])
+
+            #Generate converter analysis
+            elif HTML_GEN_ANALYSIS_ID in request.POST:
+                context = self.get_context(request)
+
+                #Ensure that design parameters have been input
+                #which occurs when components have been generated
+                if (generated_components in context and 
+                    context[generated_components]):
+                    pass
+                #Design parameters must be submitted prior to conducting
+                #converter analysis.
+                else:
+                    pass
+
+
+        else:
+            return super(DcdcPage, self).serve(request)
