@@ -17,9 +17,9 @@ UNIT_CONVERSIONS ={
     #Switching Frequency
     UNITS[0][1]: 1000,
     #Inductance
-    UNITS[1][1]: 1e6,
+    UNITS[1][1]: 1e-6,
     #Capacitance
-    UNITS[2][1]: 1e6,
+    UNITS[2][1]: 1e-6,
     #Volts
     UNITS[3][1]: 1,
     #Amps
@@ -136,7 +136,6 @@ def calculate_dcdc_components(params, recommended_components):
     to generate values for.
     '''
     components = {}
-    components_units = {}
     unit_dict = dict(UNITS)
 
     for component in recommended_components.values():
@@ -144,8 +143,8 @@ def calculate_dcdc_components(params, recommended_components):
         expr = eval(expr)
 
         #Convert expression to correct units.
-        expr *= UNIT_CONVERSIONS[unit_dict[component["units"]]]
-        pdb.set_trace()
-        components.update({component["abbreviation"]: expr})
+        expr /= UNIT_CONVERSIONS[unit_dict[component["units"]]]
+
+        components.update({component["abbreviation"]: round(expr, 2)})
     
     return components

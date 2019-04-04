@@ -139,7 +139,11 @@ class DcdcPage(Page):
     def __str__(self):
         return self.design_name
     
-    def serve(self, request):
+    def get_context(self, request):
+        context = super(DcdcPage, self).get_context(request)
+
+        #Update context if an ajax request is submitted with
+        #design data.
         if request.is_ajax():
             generated_components = "generated_components"
             rec_components = "recommended_components"
@@ -148,7 +152,6 @@ class DcdcPage(Page):
 
             #Generate recommended components
             if HTML_GEN_COMPONENTS_ID in request.POST:
-                
                 #Filter to get only parameters for analysis.
                 #form keys are in the form of design_parameter_PARAM: value
                 #this trims it to PARAM: cleaned_value
@@ -158,13 +161,21 @@ class DcdcPage(Page):
                 if False in cleaned_params.values():
                     pass #todo throw error
                 
-                context = self.get_context(request)
                 components = utils.calculate_dcdc_components(cleaned_params, self.recommended_components)
                 
                 context.update({rec_components:components})
-                context.update({"generated_components": True})
+                context.update({generated_components: True})
 
-                return JsonResponse(context[rec_components])
+        return context
+    
+    def serve(self, request):
+        print(self.get_context(request))
+        if request.is_ajax():
+            context = self.get_context(request)
+
+            if HTML_GEN_COMPONENTS_ID in request.POST:
+
+                return JsonResponse(context["recommended_components"])
 
             #Generate converter analysis
             elif HTML_GEN_ANALYSIS_ID in request.POST:
