@@ -1,10 +1,36 @@
 import re, pdb
 
 UNITS = (
-    ("Switching Frequency", "kHz", 1e3),
-    ("Inductance", "microHenries", 1e-6),
-    ("Capacitance", "microFarads", 1e-6),
+    ("kHz", "kHz"),
+    ("microHenries", "microHenries"),
+    ("microFarads", "microFarads"),
+    ("Volts", "V"),
+    ("Amps", "A"),
+    #Duty Ratio Units
+    ("Duty Cycle", None),
+    ("%", "%"),
+    ("Ohms", "Ohms"),
 )
+
+#ADD to unit conversions when units added to UNITS
+UNIT_CONVERSIONS ={
+    #Switching Frequency
+    UNITS[0][1]: 1000,
+    #Inductance
+    UNITS[1][1]: 1e6,
+    #Capacitance
+    UNITS[2][1]: 1e6,
+    #Volts
+    UNITS[3][1]: 1,
+    #Amps
+    UNITS[4][1]: 1,
+    #Duty Ratio
+    UNITS[5][1]: 1,
+    #Percent
+    UNITS[6][1]: 1e2,
+    #Ohms
+    UNITS[7][1]: 1
+}
 
 def substitute_expression(expression, values):
     '''
@@ -77,7 +103,7 @@ def clean_dcdc_form(tag, value, param):
     ID purposes.
     param: (str) Parameter or component to be cleaned.
     value: (int) Value of parameter or component to be cleaned.
-    returns a cleaned value of the selected parameter/component, False if there
+    returns (int) a cleaned value of the selected parameter/component, False if there
     is an error with cleaning the parameter/component.
     '''
 
@@ -86,19 +112,19 @@ def clean_dcdc_form(tag, value, param):
     if param == "Fs":
         if value <= 0:
             return False
-        return value*UNITS[0][2]
+        return value*UNIT_CONVERSIONS["kHz"]
     elif param == "VD1":
         if value < 0:
             return False
-        return value
+        return value*UNIT_CONVERSIONS["V"]
     elif param == "RipIo":
         if value <= 0:
             return False
-        return value
+        return value*UNIT_CONVERSIONS["A"]
     elif param == "RipVo":
         if value <= 0:
             return False
-        return value
+        return value*UNIT_CONVERSIONS["V"]
     
     return value
 
@@ -110,10 +136,16 @@ def calculate_dcdc_components(params, recommended_components):
     to generate values for.
     '''
     components = {}
+    components_units = {}
+    unit_dict = dict(UNITS)
 
     for component in recommended_components.values():
         expr = substitute_expression(component["equation"], params)
         expr = eval(expr)
+
+        #Convert expression to correct units.
+        expr *= UNIT_CONVERSIONS[unit_dict[component["units"]]]
+        pdb.set_trace()
         components.update({component["abbreviation"]: expr})
     
     return components

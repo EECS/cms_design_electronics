@@ -29,6 +29,13 @@ class DCDCDesignParam(models.Model):
                 blank=False, 
                 null=True,
             )
+    
+    units = models.CharField(
+                max_length=50, 
+                blank=False, 
+                null=True,
+                choices=UNITS,
+            )
 
     def __str__(self):
         return self.description+", "+self.abbreviation
@@ -65,6 +72,13 @@ class DCDCRecComps(models.Model):
                     blank=False, 
                     null=True,
                 )
+    
+    units = models.CharField(
+                max_length=50, 
+                blank=False, 
+                null=True,
+                choices=UNITS,
+            )
 
     def __str__(self):
         return self.abbreviation+", " +self.converter
@@ -89,6 +103,13 @@ class DCDCSelComps(models.Model):
                     null=True,
                     help_text = "E.g. C1 vs. L1 vs. etc.",
                 )
+
+    units = models.CharField(
+                max_length=50, 
+                blank=False, 
+                null=True,
+                choices=UNITS,
+            )
 
     def __str__(self):
         return self.abbreviation
@@ -126,6 +147,13 @@ class DCDCDesignEquations(models.Model):
                 null=True,
                 help_text="Design Equation",
                 )
+    
+    units = models.CharField(
+                max_length=50, 
+                blank=False, 
+                null=True,
+                choices=UNITS,
+            )
 
     def __str__(self):
         return "{}, {}".format(self.description, self.converter)

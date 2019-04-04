@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "cms_design_electronics.search",
     "cms_design_electronics.site_settings",
     "cms_design_electronics.contact",
+    "cms_design_electronics.utils",
 
     'wagtail.contrib.settings',
     'wagtail.contrib.forms',

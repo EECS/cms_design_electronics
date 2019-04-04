@@ -28,9 +28,9 @@
             <fieldset>
             {% for parameter in page.design_params.all %}
                 <div class="form-group">
-                    <label for="design_parameter_{{parameter.abbreviation}}">{{parameter}}</label>
+                    <label for="design_parameter_{{parameter.abbreviation}}">{{parameter}} in {{parameter.units}}</label>
                     <input type="number" class="form-control" id="design_parameter_{{parameter.abbreviation}}" name="design_parameter_{{parameter.abbreviation}}"
-                            placeholder="Enter value for {{parameter}}." required>
+                            placeholder="Enter value for {{parameter}} in {{parameter.units}}." required>
                 </div>
             {% endfor %}
             
@@ -50,7 +50,8 @@
                 <div class="form-group">
                     <label for="rec_component_{{component.abbreviation}}">{{component.abbreviation}}</label>
                     <big class="form-text">{{component.equation}}</big>
-                    <input readOnly="" class="form-control" id="rec_component_{{component.abbreviation}}" placeholder="Generate recommended components to view results." required>
+                    <input readOnly="" class="form-control" id="rec_component_{{component.abbreviation}}" 
+                            placeholder="Generate recommended components to view results." required>
                 </div>
             {% endfor %}
             </fieldset>
