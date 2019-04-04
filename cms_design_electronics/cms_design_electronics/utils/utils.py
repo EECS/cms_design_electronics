@@ -1,5 +1,16 @@
 import re, pdb
 
+HTML_GEN_COMPONENTS_ID="generateRecommendedComponents"
+HTML_GEN_ANALYSIS_ID="generateConverterAnalysis"
+HTML_GEN_COMPONENTS_TAG="design_parameter_"
+HTML_GEN_ANALYSIS_TAG="sel_component_"
+HTML_REC_COMPONENTS_TAG="rec_component_"
+
+DCDC_CURRENT_TYPE = (
+    ("ccm", "Continuous Conduction Mode"),
+    ("dcm", "Discontinuous Conduction Mode"),
+)
+
 UNITS = (
     ("kHz", "kHz"),
     ("microHenries", "microHenries"),
@@ -102,7 +113,7 @@ def clean_dcdc_form(tag, value, param):
     params: tag (str) HTML tag appended to front of component/param for HTML
     ID purposes.
     param: (str) Parameter or component to be cleaned.
-    value: (int) Value of parameter or component to be cleaned.
+    value: (float) Value of parameter or component to be cleaned.
     returns (int) a cleaned value of the selected parameter/component, False if there
     is an error with cleaning the parameter/component.
     '''
@@ -145,6 +156,8 @@ def calculate_dcdc_components(params, recommended_components):
         #Convert expression to correct units.
         expr /= UNIT_CONVERSIONS[unit_dict[component["units"]]]
 
-        components.update({component["abbreviation"]: round(expr, 2)})
+        components.update({"{}{}"\
+                    .format(HTML_REC_COMPONENTS_TAG,component["abbreviation"]): 
+                            round(expr, 2)})
     
     return components

@@ -26,16 +26,6 @@ import pdb
 import json
 from django.http import HttpResponse
 
-DCDC_CURRENT_TYPE = (
-    ("ccm", "Continuous Conduction Mode"),
-    ("dcm", "Discontinuous Conduction Mode"),
-)
-
-HTML_GEN_COMPONENTS_ID="generateRecommendedComponents"
-HTML_GEN_COMPONENTS_TAG="design_parameter_"
-HTML_GEN_ANALYSIS_ID="generateConverterAnalysis"
-HTML_GEN_ANALYSIS_TAG="sel_component_"
-
 class DcdcPage(Page):
     """DC/DC Converter page model."""
 
@@ -63,7 +53,7 @@ class DcdcPage(Page):
 
     dcdc_type = models.CharField(
         max_length=75, 
-        choices=DCDC_CURRENT_TYPE, 
+        choices=utils.DCDC_CURRENT_TYPE, 
         blank=False, 
         null=True,
         verbose_name="DC/DC Current Type",
@@ -131,6 +121,11 @@ class DcdcPage(Page):
         ),
     ]
 
+    gen_components_context = "generated_components"
+    rec_components_context = "recommended_components"
+    gen_analysis_context = "generated_analysis"
+    csrftoken_context = "csrfmiddlewaretoken"
+
     class Meta:
 
         verbose_name = "DC/DC Converter Page"
@@ -145,41 +140,51 @@ class DcdcPage(Page):
         #Update context if an ajax request is submitted with
         #design data.
         if request.is_ajax():
-            generated_components = "generated_components"
-            rec_components = "recommended_components"
-            generated_analysis = "generated_analysis"
-            csrftoken = "csrfmiddlewaretoken"
 
             #Generate recommended components
-            if HTML_GEN_COMPONENTS_ID in request.POST:
+            if utils.HTML_GEN_COMPONENTS_ID in request.POST:
                 #Filter to get only parameters for analysis.
                 #form keys are in the form of design_parameter_PARAM: value
                 #this trims it to PARAM: cleaned_value
-                cleaned_params = {key[len(HTML_GEN_COMPONENTS_TAG):]:utils.clean_dcdc_form(HTML_GEN_COMPONENTS_TAG, int(value), key) \
-                    for (key, value) in request.POST.items() if key != csrftoken and key != HTML_GEN_COMPONENTS_ID}
+                cleaned_params = {key[len(utils.HTML_GEN_COMPONENTS_TAG):]:utils.clean_dcdc_form(utils.HTML_GEN_COMPONENTS_TAG, float(value), key) \
+                    for (key, value) in request.POST.items() if key != self.csrftoken_context and key != utils.HTML_GEN_COMPONENTS_ID}
 
+                '''Error with form submission values.'''
                 if False in cleaned_params.values():
-                    pass #todo throw error
+                    '''Build list of values with an error'''
+                    error_dict = {}
+                    for key, value in cleaned_params.items():
+                        if not value:
+                            error_dict.update({"{}{}".format(utils.HTML_GEN_COMPONENTS_TAG, key):"Enter a valid value for this parameter."})
+
+                    context.update({self.rec_components_context:error_dict})
+                    context.update({self.gen_components_context: False})
+                else:
+                    components = utils.calculate_dcdc_components(cleaned_params, self.recommended_components)
                 
-                components = utils.calculate_dcdc_components(cleaned_params, self.recommended_components)
-                
-                context.update({rec_components:components})
-                context.update({generated_components: True})
+                    context.update({self.rec_components_context:components})
+                    context.update({self.gen_components_context: True})
 
         return context
     
     def serve(self, request):
-        print(self.get_context(request))
+
         if request.is_ajax():
             context = self.get_context(request)
 
-            if HTML_GEN_COMPONENTS_ID in request.POST:
+            if utils.HTML_GEN_COMPONENTS_ID in request.POST:
+                response = JsonResponse(context[self.rec_components_context])
 
-                return JsonResponse(context["recommended_components"])
+                #If components could be generated
+                if context[self.gen_components_context]:
+                    return response
+                
+                #Error with generating components.
+                response.status_code = 403
+                return response
 
             #Generate converter analysis
-            elif HTML_GEN_ANALYSIS_ID in request.POST:
-                context = self.get_context(request)
+            elif utils.HTML_GEN_ANALYSIS_ID in request.POST:
 
                 #Ensure that design parameters have been input
                 #which occurs when components have been generated

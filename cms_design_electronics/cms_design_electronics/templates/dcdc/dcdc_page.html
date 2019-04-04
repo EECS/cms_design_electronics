@@ -29,7 +29,8 @@
             {% for parameter in page.design_params.all %}
                 <div class="form-group">
                     <label for="design_parameter_{{parameter.abbreviation}}">{{parameter}} in {{parameter.units}}</label>
-                    <input type="number" class="form-control" id="design_parameter_{{parameter.abbreviation}}" name="design_parameter_{{parameter.abbreviation}}"
+                    <input type="number" step="0.01" class="form-control" id="design_parameter_{{parameter.abbreviation}}" 
+                            name="design_parameter_{{parameter.abbreviation}}"
                             placeholder="Enter value for {{parameter}} in {{parameter.units}}." required>
                 </div>
             {% endfor %}
@@ -43,15 +44,16 @@
         <div class="text-center">
             <h3>Recommended Components</h3>
         </div>
-        <form method="GET">
+        <form method="GET" id="recommendedComponents">
             {% csrf_token %}
             <fieldset>
             {% for component in page.recommended_components.all %}
                 <div class="form-group">
-                    <label for="rec_component_{{component.abbreviation}}">{{component.abbreviation}}</label>
+                    <label for="rec_component_{{component.abbreviation}}">{{component.abbreviation}} in {{component.units}}</label>
                     <big class="form-text">{{component.equation}}</big>
                     <input readOnly="" class="form-control" id="rec_component_{{component.abbreviation}}" 
-                            placeholder="Generate recommended components to view results." required>
+                            name="rec_component_{{component.abbreviation}}"
+                            placeholder="Generate recommended components to view results.">
                 </div>
             {% endfor %}
             </fieldset>
@@ -67,7 +69,7 @@
             {% for sel_component in page.selected_components.all %}
                 <div class="form-group">
                     <label for="sel_component_{{sel_component}}">{{sel_component}}</label>
-                    <input type="number" class="form-control" id="sel_component_{{sel_component}}" 
+                    <input type="number" step="0.01" class="form-control" id="sel_component_{{sel_component}}" 
                         name="sel_component_{{sel_component}}" placeholder="Enter value for {{sel_component}}." required>
                 </div>
             {% endfor %}
@@ -106,19 +108,40 @@
 <script type="text/javascript">
 
 (function($) {
-    $.fn.autosubmit = function() {
+    $.fn.genComponents = function() {
         this.submit(function(event) {
             event.preventDefault();
             var form = $(this);
+
+            //Remove "invalid" class from previously 
+            //invalid submissions.
+            for(let i = 0; i < form[0].length; i++){
+                let input = form[0][i]
+                if (input.id){
+                    $("#".concat(input.id)).removeClass("invalid");
+                }
+            }
             $.ajax({
                 type: form.attr('method'),
                 url: form.attr('action'),
                 data: form.serialize(),
                 success: function(json){
-                    console.log(json);
+                    //Update recommended components with recommended values
+                    //for design.
+                    for (let key in json){
+                        document.getElementById(key).value = json[key];
+                    }
+                    $("#recommendedComponents").addClass("success-border");
+                    setTimeout(function(){
+                        $("#recommendedComponents").removeClass("success-border");
+                    }, 1000);
                 },
-                error: function(list){
+                error: function(json){
+                    let jsonErrors = $.parseJSON(json.responseText)
 
+                    for (let key in jsonErrors){
+                        $("#".concat(key)).addClass("invalid");
+                    }
                 }
             }).done(function(data) {
 
@@ -131,9 +154,30 @@
 })(jQuery)
 
 $(function() {
-    $('#generateRecommendedComponents').autosubmit();
+    $('#generateRecommendedComponents').genComponents();
 });
 
 </script>
+
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+.success-border{
+    border-style: solid;
+    border-color: green;
+    border-width: 1px;
+    transition-timing-function: ease-in-out;
+    -webkit-transition: border-color 0.5s; /* Safari */
+    transition: border-color 0.5s;
+}
+
+.invalid{
+    border-style: solid;
+    border-color: red;
+    border-width: 1px;
+}
+</style>
 
 {% endblock %}
