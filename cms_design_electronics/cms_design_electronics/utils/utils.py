@@ -1,5 +1,6 @@
 import re, pdb
 
+HTML_GEN_CONVERTER_BUTTON = "generateConverterButton"
 HTML_GEN_COMPONENTS_ID="generateRecommendedComponents"
 HTML_GEN_ANALYSIS_ID="generateConverterAnalysis"
 HTML_GEN_COMPONENTS_TAG="design_parameter_"

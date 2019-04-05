@@ -126,6 +126,11 @@ class DcdcPage(Page):
     gen_analysis_context = "generated_analysis"
     csrftoken_context = "csrfmiddlewaretoken"
 
+    REC_COMPONENTS = {}
+    CONVERTER_ANALYSIS = {}
+    GENERATED_COMPONENTS = {}
+    GENERATED_ANALYSIS = {}
+
     class Meta:
 
         verbose_name = "DC/DC Converter Page"
@@ -134,15 +139,12 @@ class DcdcPage(Page):
     def __str__(self):
         return self.design_name
     
-    def get_context(self, request):
-        context = super(DcdcPage, self).get_context(request)
+    def serve(self, request):
 
-        #Update context if an ajax request is submitted with
-        #design data.
         if request.is_ajax():
 
-            #Generate recommended components
             if utils.HTML_GEN_COMPONENTS_ID in request.POST:
+
                 #Filter to get only parameters for analysis.
                 #form keys are in the form of design_parameter_PARAM: value
                 #this trims it to PARAM: cleaned_value
@@ -157,26 +159,21 @@ class DcdcPage(Page):
                         if not value:
                             error_dict.update({"{}{}".format(utils.HTML_GEN_COMPONENTS_TAG, key):"Enter a valid value for this parameter."})
 
-                    context.update({self.rec_components_context:error_dict})
-                    context.update({self.gen_components_context: False})
+                    '''Update REC_COMPONENTS dictionary with values in error and 
+                    GENERATED_COMPONENTS with a false value for completed analysis.'''
+                    self.REC_COMPONENTS.update({self.rec_components_context:error_dict})
+                    self.GENERATED_COMPONENTS.update({self.gen_components_context: False})
                 else:
                     components = utils.calculate_dcdc_components(cleaned_params, self.recommended_components)
                 
-                    context.update({self.rec_components_context:components})
-                    context.update({self.gen_components_context: True})
+                    self.REC_COMPONENTS.update({self.rec_components_context:components})
+                    self.GENERATED_COMPONENTS.update({self.gen_components_context: True})
 
-        return context
-    
-    def serve(self, request):
 
-        if request.is_ajax():
-            context = self.get_context(request)
-
-            if utils.HTML_GEN_COMPONENTS_ID in request.POST:
-                response = JsonResponse(context[self.rec_components_context])
+                response = JsonResponse(self.REC_COMPONENTS[self.rec_components_context])
 
                 #If components could be generated
-                if context[self.gen_components_context]:
+                if self.GENERATED_COMPONENTS[self.gen_components_context]:
                     return response
                 
                 #Error with generating components.
@@ -186,15 +183,24 @@ class DcdcPage(Page):
             #Generate converter analysis
             elif utils.HTML_GEN_ANALYSIS_ID in request.POST:
 
-                #Ensure that design parameters have been input
-                #which occurs when components have been generated
-                if (generated_components in context and 
-                    context[generated_components]):
-                    pass
-                #Design parameters must be submitted prior to conducting
-                #converter analysis.
-                else:
-                    pass
+                #Only generate analysis if design parameters have been received.
+                if self.GENERATED_COMPONENTS[self.gen_components_context]:
+                    print("HERE")
+
+
+
+                '''Update CONVERTER_ANALYSIS dictionary with error and
+                GENERATED_ANALYSIS with a false value for completed analysis.'''
+                error_dict = {utils.HTML_GEN_CONVERTER_BUTTON:"Submit design parameters prior to generating converter analysis."}
+                    
+                self.CONVERTER_ANALYSIS.update({self.gen_analysis_context:error_dict})
+                self.GENERATED_ANALYSIS.update({self.gen_analysis_context: False})
+
+                response = JsonResponse(self.CONVERTER_ANALYSIS[self.gen_analysis_context])
+                response.status_code = 403
+
+                return response
+
 
 
         else:
