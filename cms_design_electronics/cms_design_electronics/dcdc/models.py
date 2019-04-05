@@ -121,13 +121,18 @@ class DcdcPage(Page):
         ),
     ]
 
+    design_parameters = "design_parameters"
+    generated_analysis = "generated_analysis"
     gen_components_context = "generated_components"
     rec_components_context = "recommended_components"
     gen_analysis_context = "generated_analysis"
     csrftoken_context = "csrfmiddlewaretoken"
 
+    DESIGN_PARAMETERS = {}
     REC_COMPONENTS = {}
     CONVERTER_ANALYSIS = {}
+    
+    #Wagtail quirk, need to store in a dict.
     GENERATED_COMPONENTS = {}
     GENERATED_ANALYSIS = {}
 
@@ -164,6 +169,8 @@ class DcdcPage(Page):
                     self.REC_COMPONENTS.update({self.rec_components_context:error_dict})
                     self.GENERATED_COMPONENTS.update({self.gen_components_context: False})
                 else:
+
+                    self.DESIGN_PARAMETERS.update({self.design_parameters: cleaned_params})
                     components = utils.calculate_dcdc_components(cleaned_params, self.recommended_components)
                 
                     self.REC_COMPONENTS.update({self.rec_components_context:components})
@@ -184,23 +191,90 @@ class DcdcPage(Page):
             elif utils.HTML_GEN_ANALYSIS_ID in request.POST:
 
                 #Only generate analysis if design parameters have been received.
-                if self.GENERATED_COMPONENTS[self.gen_components_context]:
-                    print("HERE")
+                if self.GENERATED_COMPONENTS and self.GENERATED_COMPONENTS[self.gen_components_context]:
 
+                    #Filter to get only components for analysis.
+                    #form keys are in the form of sel_component_PARAM: value
+                    #this trims it to PARAM: cleaned_value
+                    cleaned_params = {key[len(utils.HTML_GEN_ANALYSIS_TAG):]:utils.clean_dcdc_form(utils.HTML_GEN_ANALYSIS_TAG, float(value), key) \
+                        for (key, value) in request.POST.items() if key != self.csrftoken_context and key != utils.HTML_GEN_ANALYSIS_ID}
+                    
+                    '''Error with form submission values.'''
+                    if False in cleaned_params.values():
+                        '''Build list of values with an error'''
+                        error_dict = {}
+                        for key, value in cleaned_params.items():
+                            if not value:
+                                error_dict.update({"{}{}".format(utils.HTML_GEN_ANALYSIS_TAG, key):"Enter a valid value for this parameter."})
 
+                        '''Update CONVERTER_ANALYSIS dictionary with values in error and 
+                        GENERATED_ANALYSIS with a false value for completed analysis.'''
+                        self.CONVERTER_ANALYSIS.update({self.gen_analysis_context:error_dict})
+                        self.GENERATED_ANALYSIS.update({self.generated_analysis: False})
+
+                        response = JsonResponse(self.CONVERTER_ANALYSIS[self.gen_analysis_context])
+                        response.status_code = 403
+
+                        return response
+                    
+                    #Form submission successful.
+                    else:
+                        '''Create dictionary of both parameters and components to use in analysis.'''
+                        cleaned_params.update(self.DESIGN_PARAMETERS[self.design_parameters])
+                        analysis_results = utils.generate_dcdc_analysis(cleaned_params, self.design_equations)
+                        
+                        #Analysis parameters are invalid, must resubmit components or parameters.
+                        if False in analysis_results.values():
+                            '''Update CONVERTER_ANALYSIS dictionary with error and
+                            GENERATED_ANALYSIS with a false value for completed analysis.'''
+                            error_dict = {utils.HTML_GEN_CONVERTER_BUTTON:"Design parameters and/or components are"+\
+                                            "invalid for analysis. Correct and resubmit."}
+                                
+                            self.CONVERTER_ANALYSIS.update({self.gen_analysis_context:error_dict})
+                            self.GENERATED_ANALYSIS.update({self.generated_analysis: False})
+
+                            response = JsonResponse(self.CONVERTER_ANALYSIS[self.gen_analysis_context])
+                            response.status_code = 403
+
+                            return response
+                        else:
+
+                            self.CONVERTER_ANALYSIS.update({self.gen_analysis_context:analysis_results})
+                            self.GENERATED_ANALYSIS.update({self.generated_analysis: True})
+                        
+                            response = JsonResponse(self.CONVERTER_ANALYSIS[self.gen_analysis_context])
+
+                            return response
 
                 '''Update CONVERTER_ANALYSIS dictionary with error and
                 GENERATED_ANALYSIS with a false value for completed analysis.'''
                 error_dict = {utils.HTML_GEN_CONVERTER_BUTTON:"Submit design parameters prior to generating converter analysis."}
                     
                 self.CONVERTER_ANALYSIS.update({self.gen_analysis_context:error_dict})
-                self.GENERATED_ANALYSIS.update({self.gen_analysis_context: False})
+                self.GENERATED_ANALYSIS.update({self.generated_analysis: False})
 
                 response = JsonResponse(self.CONVERTER_ANALYSIS[self.gen_analysis_context])
                 response.status_code = 403
 
                 return response
+            
+            elif utils.HTML_GEN_OPENLOOP_ID:
 
+                #Only generate plots if design parameters and selected components received.
+                if self.GENERATED_COMPONENTS and self.GENERATED_COMPONENTS[self.gen_components_context] and\
+                    self.GENERATED_ANALYSIS and self.CONVERTER_ANALYSIS[self.gen_analysis_context]:
+                    pass
+                else:
+
+                    '''Update CONVERTER_ANALYSIS dictionary with error and
+                    GENERATED_ANALYSIS with a false value for completed analysis.'''
+                    error_dict = {utils.HTML_GEN_OPENLOOP_BUTTON:"Submit both design parameters and selected components"+\
+                        "prior to generating plots."}
+
+                    response = JsonResponse(error_dict)
+                    response.status_code = 403
+
+                    return response
 
 
         else:

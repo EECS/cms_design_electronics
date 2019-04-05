@@ -1,11 +1,21 @@
 import re, pdb
 
 HTML_GEN_CONVERTER_BUTTON = "generateConverterButton"
+HTML_GEN_OPENLOOP_BUTTON = "generateOpenLoopButton"
+
 HTML_GEN_COMPONENTS_ID="generateRecommendedComponents"
 HTML_GEN_ANALYSIS_ID="generateConverterAnalysis"
+HTML_GEN_OPENLOOP_ID="generateOpenLoopTransfers"
 HTML_GEN_COMPONENTS_TAG="design_parameter_"
+
 HTML_GEN_ANALYSIS_TAG="sel_component_"
 HTML_REC_COMPONENTS_TAG="rec_component_"
+HTML_DESIGN_EQUATIONS_TAG="design_equation_"
+
+MODEL_DUTY_RATIO = "Duty Ratio"
+MODEL_RIPPLE_VOLTAGE = "Ideal Output Ripple Voltage"
+
+MODEL_OUTPUT_VOLTAGE ="Vo"
 
 DCDC_CURRENT_TYPE = (
     ("ccm", "Continuous Conduction Mode"),
@@ -39,7 +49,7 @@ UNIT_CONVERSIONS ={
     #Duty Ratio
     UNITS[5][1]: 1,
     #Percent
-    UNITS[6][1]: 1e2,
+    UNITS[6][1]: 1e-2,
     #Ohms
     UNITS[7][1]: 1
 }
@@ -58,16 +68,6 @@ def substitute_expression(expression, values):
         function = re.sub(r"\b{}\b".format(k), "({})".format(str(v)), function)
     
     return function
-
-def calculate_duty_cycle(duty_cycle_expression):
-    '''
-    params: input_output_transfer (Sympy expression) - A
-    sympy variable in the s-domain to be used to calculate the duty cycle.
-    d_idx (int) - Index of solved duty_cycle equation to return (important for
-    sqrt operations.)
-    '''
-
-    return duty_cycle_expression
 
 def generate_transfer_data(transfer_function, bode_x_range):
     '''
@@ -120,6 +120,7 @@ def clean_dcdc_form(tag, value, param):
     '''
 
     param = param[len(tag):]
+
     #Switching frequency parameter.
     if param == "Fs":
         if value <= 0:
@@ -137,7 +138,23 @@ def clean_dcdc_form(tag, value, param):
         if value <= 0:
             return False
         return value*UNIT_CONVERSIONS["V"]
-    
+    elif param == "Io":
+        return value*UNIT_CONVERSIONS["A"]
+    elif param == "Vin" or param=="Vo":
+        return value*UNIT_CONVERSIONS["V"]
+    elif param == "C1":
+        if value < 0:
+            return False
+        return value*UNIT_CONVERSIONS["microFarads"]
+    elif param == "L1":
+        if value < 0:
+            return False
+        return value*UNIT_CONVERSIONS["microHenries"]
+    elif param == "RC1" or param=="RL1" or param=="RQ1":
+        if value < 0:
+            return False
+        return value*UNIT_CONVERSIONS["Ohms"]
+
     return value
 
 def calculate_dcdc_components(params, recommended_components):
@@ -162,3 +179,41 @@ def calculate_dcdc_components(params, recommended_components):
                             round(expr, 2)})
     
     return components
+
+def generate_dcdc_analysis(params_components, design_equations):
+    '''
+    params_components: params (dict) dictionary of key param/component
+    (Vo, Vin, etc.) and value of key in correct units.
+    design_equations (model_cluster) cluster of design equations
+    to generate results for.
+    '''
+    results = {}
+    unit_dict = dict(UNITS)
+
+    for equation in design_equations.values():
+        expr = substitute_expression(equation["equation"], params_components)
+        expr = eval(expr)
+
+        #Convert expression to correct units.
+        expr /= UNIT_CONVERSIONS[unit_dict[equation["units"]]]
+
+        if equation["description"] == MODEL_DUTY_RATIO:
+            if expr >=1 or expr <= 0:
+                expr = False
+        elif equation["description"] == MODEL_RIPPLE_VOLTAGE:
+            if expr >= params_components[MODEL_OUTPUT_VOLTAGE]:
+                expr = False
+        
+        #Analysis obtained successful results.
+        if expr:
+            results.update({"{}{}"\
+                    .format(HTML_DESIGN_EQUATIONS_TAG,equation["description"]): 
+                            round(expr, 3)})
+        #Error with analysis
+        else:
+            results.update({"{}{}"\
+                    .format(HTML_DESIGN_EQUATIONS_TAG,equation["description"]): 
+                            expr})
+            break
+    
+    return results

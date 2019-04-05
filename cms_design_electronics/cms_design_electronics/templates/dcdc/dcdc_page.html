@@ -68,8 +68,8 @@
             <fieldset>
             {% for sel_component in page.selected_components.all %}
                 <div class="form-group">
-                    <label for="sel_component_{{sel_component.abbreviation}}">{{sel_component.abbreviation}} in {{sel_component.units}}</label>
-                    <input type="number" step="0.01" class="form-control" id="sel_component_{{sel_component.abbreviation}}" 
+                    <label for="sel_component_{{sel_component.abbreviation}}">{{sel_component.abbreviation}} {% if sel_component.units %}in {{sel_component.units}}{% endif %}</label>
+                    <input type="number" step="0.001" class="form-control" id="sel_component_{{sel_component.abbreviation}}" 
                         name="sel_component_{{sel_component.abbreviation}}" 
                         placeholder="Enter value for {{sel_component.abbreviation}}." required>
                 </div>
@@ -90,15 +90,16 @@
             <fieldset>
             {% for equation in page.design_equations.all %}
                 <div class="form-group">
-                    <label for="design_equation_{{equation.description}}">{{equation.description}}</label>
+                    <label for="design_equation_{{equation.description}}">{{equation.description}} in {{equation.units}}</label>
                     <big class="form-text">{{equation.equation}}</big>
-                    <input readOnly="" class="form-control" id="design_equation_{{component}}" placeholder="Generate converter analysis to view results." required>
+                    <input readOnly="" class="form-control" id="design_equation_{{equation.description}}" 
+                        placeholder="Generate converter analysis to view results." required>
                 </div>
             {% endfor %}
-
-            <button type="submit" class="btn btn-outline-primary">
-                Generate Open Loop Transfer Functions
-            </button>
+            
+            <input type="hidden" name="generateOpenLoopTransfers">
+            <input type="submit" class="btn btn-outline-primary" 
+                    value="Generate Open Loop Transfer Functions" id="generateOpenLoopButton">
             </fieldset>
         </form>
     </div>
@@ -115,12 +116,12 @@
             event.preventDefault();
             var form = $(this);
 
-            //Remove "invalid" class from previously 
+            //Remove "submission-invalid" class from previously 
             //invalid submissions.
             for(let i = 0; i < form[0].length; i++){
                 let input = form[0][i]
                 if (input.id){
-                    $("#".concat(input.id)).removeClass("invalid");
+                    $("#".concat(input.id)).removeClass("submission-invalid");
                 }
             }
             $.ajax({
@@ -133,16 +134,16 @@
                     for (let key in json){
                         document.getElementById(key).value = json[key];
                     }
-                    $("#recommendedComponents").addClass("success-border");
+                    $("#recommendedComponents").addClass("success-indication");
                     setTimeout(function(){
-                        $("#recommendedComponents").removeClass("success-border");
+                        $("#recommendedComponents").removeClass("success-indication");
                     }, 1000);
                 },
                 error: function(json){
                     let jsonErrors = $.parseJSON(json.responseText)
 
                     for (let key in jsonErrors){
-                        $("#".concat(key)).addClass("invalid");
+                        $("#".concat(key)).addClass("submission-invalid");
                     }
                 }
             });
@@ -161,15 +162,36 @@ $(function() {
             event.preventDefault();
             var form = $(this);
 
+            //Remove "submission-invalid" class from previously 
+            //invalid submissions.
+            for(let i = 0; i < form[0].length; i++){
+                let input = form[0][i]
+                if (input.id){
+                    $("#".concat(input.id)).removeClass("submission-invalid");
+                }
+            }
+            $("#generateOpenLoopTransfers").removeClass("submission-invalid")
+
             $.ajax({
                 type: form.attr('method'),
                 url: form.attr('action'),
                 data: form.serialize(),
                 success: function(json){
-
+                    //Update design equations with analysis results.
+                    for (let key in json){
+                        document.getElementById(key).value = json[key];
+                    }
+                    $("#generateOpenLoopTransfers").addClass("success-indication");
+                    setTimeout(function(){
+                        $("#generateOpenLoopTransfers").removeClass("success-indication");
+                    }, 1000);
                 },
                 error: function(json){
+                    let jsonErrors = $.parseJSON(json.responseText)
 
+                    for (let key in jsonErrors){
+                        $("#".concat(key)).addClass("submission-invalid");
+                    }
                 }
             });
         });
@@ -181,6 +203,38 @@ $(function() {
     $('#generateConverterAnalysis').genAnalysis();
 });
 
+(function($) {
+    $.fn.genOpenLoop = function() {
+        this.submit(function(event) {
+            event.preventDefault();
+            var form = $(this);
+
+            $("#generateOpenLoopButton").removeClass("submission-invalid")
+
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function(json){
+
+                },
+                error: function(json){
+                    let jsonErrors = $.parseJSON(json.responseText)
+
+                    for (let key in jsonErrors){
+                        $("#".concat(key)).addClass("submission-invalid");
+                    }
+                }
+            });
+        });
+        return this;
+    }
+})(jQuery)
+
+$(function() {
+    $('#generateOpenLoopTransfers').genOpenLoop();
+});
+
 </script>
 
 {% endblock %}
@@ -188,16 +242,16 @@ $(function() {
 {% block extra_css %}
 
 <style>
-.success-border{
-    border-style: solid;
-    border-color: green;
-    border-width: 1px;
+.success-indication{
+    outline-width:1px;
+    outline-style:solid;
+    outline-color:green;
     transition-timing-function: ease-in-out;
-    -webkit-transition: border-color 0.5s; /* Safari */
-    transition: border-color 0.5s;
+    -webkit-transition: background-color 0.5s; /* Safari */
+    transition: background-color 0.5s;
 }
 
-.invalid{
+.submission-invalid{
     border-style: solid;
     border-color: red;
     border-width: 1px;
