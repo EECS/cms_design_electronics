@@ -22,17 +22,21 @@
         {# Add design parameter input form. #}
         <div class="text-center">
             <h3>Design Parameters</h3>
+            <p class="text-primary">Enter design parameters below.</p>
         </div>
         <form method="POST" id="generateRecommendedComponents">
             {% csrf_token %}
             <fieldset>
             {% for parameter in page.design_params.all %}
-                <div class="form-group">
-                    <label for="design_parameter_{{parameter.abbreviation}}">{{parameter}} in {{parameter.units}}</label>
-                    <input type="number" step="0.01" class="form-control" id="design_parameter_{{parameter.abbreviation}}" 
-                            name="design_parameter_{{parameter.abbreviation}}"
-                            placeholder="Enter value for {{parameter}} in {{parameter.units}}." required>
+            <div class="form-group">
+                <div class="text-primary">
+                    {{parameter}} in {{parameter.units}}
                 </div>
+                <input type="number" step="0.01" class="form-control" id="design_parameter_{{parameter.abbreviation}}" 
+                        name="design_parameter_{{parameter.abbreviation}}"
+                        placeholder="Enter value."
+                        required>
+            </div>
             {% endfor %}
             
             <input type="hidden" name="generateRecommendedComponents">
@@ -49,8 +53,8 @@
             <fieldset>
             {% for component in page.recommended_components.all %}
                 <div class="form-group">
-                    <label for="rec_component_{{component.abbreviation}}">{{component.abbreviation}} in {{component.units}}</label>
-                    <big class="form-text">{{component.equation}}</big>
+                    <label class="text-primary" for="rec_component_{{component.abbreviation}}">{{component.abbreviation}} in {{component.units}}</label>
+                    <big class="form-text text-center text-primary">{{component.equation}}</big>
                     <input readOnly="" class="form-control" id="rec_component_{{component.abbreviation}}" 
                             name="rec_component_{{component.abbreviation}}"
                             placeholder="Generate recommended components to view results.">
@@ -62,13 +66,14 @@
         {# Add selected components input form. #}
         <div class="text-center">
             <h3>Selected Components</h3>
+            <p class="text-primary"> Enter selected components for converter below.</p>
         </div>
         <form method="POST" id="generateConverterAnalysis">
             {% csrf_token %}
             <fieldset>
             {% for sel_component in page.selected_components.all %}
                 <div class="form-group">
-                    <label for="sel_component_{{sel_component.abbreviation}}">{{sel_component.abbreviation}} {% if sel_component.units %}in {{sel_component.units}}{% endif %}</label>
+                    <label class="text-primary" for="sel_component_{{sel_component.abbreviation}}">{{sel_component.abbreviation}} {% if sel_component.units %}in {{sel_component.units}}{% endif %}</label>
                     <input type="number" step="0.001" class="form-control" id="sel_component_{{sel_component.abbreviation}}" 
                         name="sel_component_{{sel_component.abbreviation}}" 
                         placeholder="Enter value for {{sel_component.abbreviation}}." required>
@@ -91,7 +96,7 @@
             {% for equation in page.design_equations.all %}
                 <div class="form-group">
                     <label for="design_equation_{{equation.description}}">{{equation.description}} in {{equation.units}}</label>
-                    <big class="form-text">{{equation.equation}}</big>
+                    <big class="form-text text-center text-primary">{{equation.equation}}<b></b></big>
                     <input readOnly="" class="form-control" id="design_equation_{{equation.description}}" 
                         placeholder="Generate converter analysis to view results." required>
                 </div>
@@ -107,6 +112,9 @@
 {% endblock %}
 
 {% block extra_js %}
+
+<!--Load open loop bode plot capability.-->
+<script src="static/js/dcdc/plotOpenLoop.js"></script>
 
 <script type="text/javascript">
 
@@ -256,6 +264,14 @@ $(function() {
     border-color: red;
     border-width: 1px;
 }
+
+.vertical-center{
+    display: flex;
+    align-items: center;
+}
 </style>
 
+{% endblock %}
+
+{% block before_bootstrap_css%}
 {% endblock %}
