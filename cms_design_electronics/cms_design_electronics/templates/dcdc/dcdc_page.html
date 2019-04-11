@@ -107,16 +107,52 @@
                     value="Generate Open Loop Transfer Functions" id="generateOpenLoopButton">
             </fieldset>
         </form>
+
+        {# Add open loop transfer function plotting.#}
+        <div>
+            <h3 class="text-center">Open Loop Bode Plots</h3>
+
+            {% for equation in page.open_loop_equations.all %}
+                <div class="text-center black-border">
+                    <h5 class="text-center">{{equation.description}}</h5>
+                    <div id="open_plot_{{ equation.description }}_mag"></div>
+                    <div id= "open_plot_{{ equation.description }}_phase" style="margin-top: -10px;"></div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 
 {% endblock %}
 
 {% block extra_js %}
 
-<!--Load open loop bode plot capability.-->
-<script src="static/js/dcdc/plotOpenLoop.js"></script>
-
 <script type="text/javascript">
+
+    //Global variable for range of bode plots on the x-axis
+    range = JSON.parse("{{ page.X_RANGE.x_range }}");
+    mags_output_impedance = JSON.parse("{{ page.MAGS_OI.mags_oi }}");
+    phases_output_impedance = JSON.parse("{{ page.PHASE_OI.phase_oi }}");
+
+    out_imped_mag_div = "open_plot_Output Impedance_mag";
+    out_imped_phs_div = "open_plot_Output Impedance_phase";
+
+    mags_input_impedance = JSON.parse("{{ page.MAGS_II.mags_ii }}");
+    phases_input_impedance = JSON.parse("{{ page.PHASE_II.phase_ii }}");
+
+    in_imped_mag_div = "open_plot_Input Impedance_mag";
+    in_imped_phs_div = "open_plot_Input Impedance_phase";
+    
+    mags_input_output_transfer = JSON.parse("{{ page.MAGS_IO.mags_io }}");
+    phases_input_output_transfer = JSON.parse("{{ page.PHASE_IO.phase_io }}");
+
+    in_out_mag_div = "open_plot_Input to Output Transfer Function_mag";
+    in_out_phs_div = "open_plot_Input to Output Transfer Function_phase";
+    
+    mags_duty_output_transfer = JSON.parse("{{ page.MAGS_DO.mags_do }}");
+    phases_duty_output_transfer = JSON.parse("{{ page.PHASE_DO.phase_do }}");
+
+    duty_out_mag_div = "open_plot_Duty to Output Transfer Function_mag";
+    duty_out_phs_div = "open_plot_Duty to Output Transfer Function_phase";
 
 (function($) {
     $.fn.genComponents = function() {
@@ -245,9 +281,17 @@ $(function() {
 
 </script>
 
+<!--Load open loop bode plot capability.-->
+<script src="https://fastcdn.org/D3.js/3.5.6/d3.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" 
+integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" 
+crossorigin="anonymous"></script>
+
+<script src="/static/js/dcdc/plotOpenLoop.js" type="text/javascript"></script>
 {% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="/static/css/dcdc/bode-styles.css">
 
 <style>
 .success-indication{
@@ -265,13 +309,11 @@ $(function() {
     border-width: 1px;
 }
 
-.vertical-center{
-    display: flex;
-    align-items: center;
+.black-border{
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
 }
 </style>
 
-{% endblock %}
-
-{% block before_bootstrap_css%}
 {% endblock %}

@@ -121,6 +121,7 @@ class DcdcPage(Page):
         ),
     ]
 
+    sel_components = "sel_components"
     design_parameters = "design_parameters"
     generated_analysis = "generated_analysis"
     gen_components_context = "generated_components"
@@ -130,11 +131,23 @@ class DcdcPage(Page):
 
     DESIGN_PARAMETERS = {}
     REC_COMPONENTS = {}
+    SEL_COMPONENTS = {}
     CONVERTER_ANALYSIS = {}
     
     #Wagtail quirk, need to store in a dict.
     GENERATED_COMPONENTS = {}
     GENERATED_ANALYSIS = {}
+
+    #Open loop bode plot parameters
+    X_RANGE = {"x_range":utils.log_step_size()}
+    MAGS_OI = {"mags_oi":utils.fill_zeros()}
+    PHASE_OI = {"phase_oi":utils.fill_zeros()}
+    MAGS_II = {"mags_ii":utils.fill_zeros()}
+    PHASE_II = {"phase_ii":utils.fill_zeros()}
+    MAGS_IO = {"mags_io":utils.fill_zeros()}
+    PHASE_IO = {"phase_io":utils.fill_zeros()}
+    MAGS_DO = {"mags_do":utils.fill_zeros()}
+    PHASE_DO = {"phase_do":utils.fill_zeros()}
 
     class Meta:
 
@@ -147,7 +160,8 @@ class DcdcPage(Page):
     def serve(self, request):
 
         if request.is_ajax():
-
+            
+            #Submitted design parameters and getting recommended components.
             if utils.HTML_GEN_COMPONENTS_ID in request.POST:
 
                 #Filter to get only parameters for analysis.
@@ -219,6 +233,9 @@ class DcdcPage(Page):
                     
                     #Form submission successful.
                     else:
+                        #Update selected components with components chosen for analysis.
+                        self.SEL_COMPONENTS.update({self.sel_components: cleaned_params})
+
                         '''Create dictionary of both parameters and components to use in analysis.'''
                         cleaned_params.update(self.DESIGN_PARAMETERS[self.design_parameters])
                         analysis_results = utils.generate_dcdc_analysis(cleaned_params, self.design_equations)
@@ -258,12 +275,26 @@ class DcdcPage(Page):
 
                 return response
             
+            #Generate open loop transfer functions
             elif utils.HTML_GEN_OPENLOOP_ID:
-
+                
                 #Only generate plots if design parameters and selected components received.
                 if self.GENERATED_COMPONENTS and self.GENERATED_COMPONENTS[self.gen_components_context] and\
                     self.GENERATED_ANALYSIS and self.CONVERTER_ANALYSIS[self.gen_analysis_context]:
-                    pass
+                    
+                    #Create range to conduct analysis.
+                    bode_x_range = self.X_RANGE["x_range"]
+                    
+                    #Create parameters and components to be used in analysis.
+                    params_components = self.DESIGN_PARAMETERS[self.design_parameters]
+                    params_components.update(self.SEL_COMPONENTS[self.sel_components])
+
+                    #Add duty ratio to params and components dictionary
+                    params_components[utils.MODEL_EQUATION_DUTY_RATIO] = self.CONVERTER_ANALYSIS[self.generated_analysis]\
+                        [utils.HTML_DESIGN_EQUATIONS_TAG+utils.MODEL_DUTY_RATIO]
+
+                    open_loop_data = utils.generate_open_loop(params_components, self.open_loop_equations, bode_x_range)
+                    pdb.set_trace()
                 else:
 
                     '''Update CONVERTER_ANALYSIS dictionary with error and

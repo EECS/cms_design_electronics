@@ -173,7 +173,7 @@ function BodePlot(mags, mags_min, mags_max, phases, phases_min, phases_max, mag_
         .on("zoom",this.redraw);
 
     // Create plot
-    this.plotMag = d3.select("#"+this.mag_plot_div).append("svg")
+    this.plotMag = d3.select("div[id='"+this.mag_plot_div+"'").append("svg")
         .attr("width",this.width + this.margin.left + this.margin.right)
         .attr("height",this.height + this.margin.top + this.margin.bottom)
         .append("g")
@@ -181,7 +181,7 @@ function BodePlot(mags, mags_min, mags_max, phases, phases_min, phases_max, mag_
         .call(this.magZoom);
 
     // Create plot
-    this.plotPhs = d3.select("#"+this.phase_plot_div).append("svg")
+    this.plotPhs = d3.select("div[id='"+this.phase_plot_div+"'").append("svg")
         .attr("width",this.width + this.margin.left + this.margin.right)
         .attr("height",this.height + this.margin.top + this.margin.bottom)
         .append("g")
@@ -406,17 +406,13 @@ BodePlot.prototype = {
     }
 }
 
-var output_impedance_bode = new BodePlot(mags_output_impedance, mags_min_output_impedance, mags_max_output_impedance, 
-    phases_output_impedance, phase_min_output_impedance, phase_max_output_impedance, out_imped_mag_div, out_imped_phs_div);
+var output_impedance_bode = new BodePlot(mags_output_impedance, 0, 0, phases_output_impedance, 0, 0, out_imped_mag_div, out_imped_phs_div);
 
-var input_impedance_bode = new BodePlot(mags_input_impedance, mags_min_input_impedance, mags_max_input_impedance, 
-        phases_input_impedance, phase_min_input_impedance, phase_max_input_impedance, in_imped_mag_div, in_imped_phs_div);
+var input_impedance_bode = new BodePlot(mags_input_impedance, 0, 0, phases_input_impedance, 0, 0, in_imped_mag_div, in_imped_phs_div);
 
-var input_output_bode = new BodePlot(mags_input_output_transfer, mags_min_input_output_transfer, mags_max_input_output_transfer, 
-        phases_input_output_transfer, phase_min_input_output_transfer, phase_max_input_output_transfer, in_out_mag_div, in_out_phs_div);
+var input_output_bode = new BodePlot(mags_input_output_transfer, 0, 0, phases_input_output_transfer, 0, 0, in_out_mag_div, in_out_phs_div);
 
-var duty_output_bode = new BodePlot(mags_duty_output_transfer, mags_min_duty_output_transfer, mags_max_duty_output_transfer, 
-        phases_duty_output_transfer, phase_min_duty_output_transfer, phase_max_duty_output_transfer, duty_out_mag_div, duty_out_phs_div);
+var duty_output_bode = new BodePlot(mags_duty_output_transfer, 0, 0, phases_duty_output_transfer, 0, 0, duty_out_mag_div, duty_out_phs_div);
 
 output_impedance_bode.createGraphs();
 input_impedance_bode.createGraphs();

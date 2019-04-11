@@ -1,4 +1,5 @@
-import re, pdb
+import re, math, cmath
+import pdb
 
 HTML_GEN_CONVERTER_BUTTON = "generateConverterButton"
 HTML_GEN_OPENLOOP_BUTTON = "generateOpenLoopButton"
@@ -6,16 +7,17 @@ HTML_GEN_OPENLOOP_BUTTON = "generateOpenLoopButton"
 HTML_GEN_COMPONENTS_ID="generateRecommendedComponents"
 HTML_GEN_ANALYSIS_ID="generateConverterAnalysis"
 HTML_GEN_OPENLOOP_ID="generateOpenLoopTransfers"
-HTML_GEN_COMPONENTS_TAG="design_parameter_"
+HTML_OPEN_LOOP_ID="open_plot_"
 
+HTML_GEN_COMPONENTS_TAG="design_parameter_"
 HTML_GEN_ANALYSIS_TAG="sel_component_"
 HTML_REC_COMPONENTS_TAG="rec_component_"
 HTML_DESIGN_EQUATIONS_TAG="design_equation_"
 
 MODEL_DUTY_RATIO = "Duty Ratio"
 MODEL_RIPPLE_VOLTAGE = "Ideal Output Ripple Voltage"
-
 MODEL_OUTPUT_VOLTAGE ="Vo"
+MODEL_EQUATION_DUTY_RATIO = "D"
 
 DCDC_CURRENT_TYPE = (
     ("ccm", "Continuous Conduction Mode"),
@@ -53,6 +55,39 @@ UNIT_CONVERSIONS ={
     #Ohms
     UNITS[7][1]: 1
 }
+
+assert len(UNITS) == len(UNIT_CONVERSIONS)
+
+def fill_zeros(start_freq=1, end_freq=100, num_points=5000):
+    '''
+    Generates a list of data points between start_freq and end_freq
+    with all 0.
+    params: start_freq (int) - Starting frequency in Hz
+    end_freq (int) - Ending frequency in kHz
+    num_points (int) - Number of points in returned list.j
+    returns:
+    log_x_range (list) list of points between start and end freq as 0.
+    '''
+
+    x_range = [0 for i in range(num_points)]
+
+    return x_range
+
+def log_step_size(start_freq=1, end_freq=100, num_points=5000):
+    '''
+    Generates a list of data points between start_freq and end_freq
+    using a logarithmic step size.
+    params: start_freq (int) - Starting frequency in Hz
+    end_freq (int) - Ending frequency in kHz
+    num_points (int) - Number of points in returned list.j
+    returns:
+    log_x_range (list) list of points between start and end freq.
+    '''
+
+    log_step_size = ((math.log10(end_freq*1000)-math.log10(start_freq))/num_points)
+    log_x_range = [10**((i+1)*log_step_size) for i in range(num_points)]
+
+    return log_x_range
 
 def substitute_expression(expression, values):
     '''
@@ -215,5 +250,26 @@ def generate_dcdc_analysis(params_components, design_equations):
                     .format(HTML_DESIGN_EQUATIONS_TAG,equation["description"]): 
                             expr})
             break
+    
+    return results
+
+
+def generate_open_loop(params_components, design_equations, bode_x_range):
+    '''
+    Generates magnitude and phase data for all open loop transfer functions.
+    params: 
+    params_components: params (dict) dictionary of key param/component
+    (Vo, Vin, etc.) and value of key in correct units.
+    design_equations (model_cluster) cluster of open loop design equations
+    to generate results for.
+    bode_x_range (list) list of frequencies to generate magnitude and phase
+    data for.
+    '''
+    results = {}
+
+    for equation in design_equations.values():
+        expr = substitute_expression(equation["equation"], params_components)
+        mags, phases = generate_transfer_data(expr, bode_x_range)
+        results[equation["description"]] = [mags, phases]
     
     return results
