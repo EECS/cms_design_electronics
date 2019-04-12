@@ -24,6 +24,8 @@ DCDC_CURRENT_TYPE = (
     ("dcm", "Discontinuous Conduction Mode"),
 )
 
+#Left hand side is what appears on the webpage,
+#right hand side appears in the wagtail admin.
 UNITS = (
     ("kHz", "kHz"),
     ("microHenries", "microHenries"),
@@ -270,6 +272,8 @@ def generate_open_loop(params_components, design_equations, bode_x_range):
     for equation in design_equations.values():
         expr = substitute_expression(equation["equation"], params_components)
         mags, phases = generate_transfer_data(expr, bode_x_range)
-        results[equation["description"]] = [mags, phases]
+
+        results["{}{}{}".format(HTML_OPEN_LOOP_ID,
+        equation["description"], "_mag")] = [mags, phases]
     
     return results

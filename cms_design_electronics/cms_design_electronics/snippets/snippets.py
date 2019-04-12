@@ -41,8 +41,8 @@ class DCDCDesignParam(models.Model):
         return self.description+", "+self.abbreviation
 
     class Meta:
-        verbose_name = "DC/DC Converter Design Parameter"
-        verbose_name_plural = "DC/DC Converter Design Parameters"
+        verbose_name = "DC/DC Converter: Design Parameter"
+        verbose_name_plural = "DC/DC Converter: Design Parameters"
 
 @register_snippet
 class DCDCRecComps(models.Model):
@@ -84,8 +84,8 @@ class DCDCRecComps(models.Model):
         return self.abbreviation+", " +self.converter
 
     class Meta:
-        verbose_name = "DC/DC Converter Recommended Component"
-        verbose_name_plural = "DC/DC Converter Recommended Components"
+        verbose_name = "DC/DC Converter: Recommended Component"
+        verbose_name_plural = "DC/DC Converter: Recommended Components"
 
 @register_snippet
 class DCDCSelComps(models.Model):
@@ -115,8 +115,8 @@ class DCDCSelComps(models.Model):
         return self.abbreviation
 
     class Meta:
-        verbose_name = "DC/DC Converter Selected Component for Analysis"
-        verbose_name_plural = "DC/DC Converter Selected Components for Analysis"
+        verbose_name = "DC/DC Converter: Selected Component"
+        verbose_name_plural = "DC/DC Converter: Selected Components"
 
 @register_snippet
 class DCDCDesignEquations(models.Model):
@@ -159,8 +159,8 @@ class DCDCDesignEquations(models.Model):
         return "{}, {}".format(self.description, self.converter)
 
     class Meta:
-        verbose_name = "DC/DC Converter Design Equation for Analysis"
-        verbose_name_plural = "DC/DC Converter Design Equations for Analysis"
+        verbose_name = "DC/DC Converter: Analysis Result"
+        verbose_name_plural = "DC/DC Converter: Analysis Results"
 
 @register_snippet
 class DCDCOpenLoopEquations(models.Model):
@@ -195,5 +195,5 @@ class DCDCOpenLoopEquations(models.Model):
         return "{}, {}".format(self.description, self.converter)
 
     class Meta:
-        verbose_name = "DC/DC Converter Open Loop Design Equation"
-        verbose_name_plural = "DC/DC Converter Open Loop Design Equations"
+        verbose_name = "DC/DC Converter: Open Loop Transfer Function"
+        verbose_name_plural = "DC/DC Converter: Open Loop Transfer Functions"

@@ -20,8 +20,6 @@ from ..streams import blocks
 from ..snippets import snippets
 from ..utils import utils
 
-import pdb
-
 #Ajax support for webpage
 import json
 from django.http import HttpResponse
@@ -294,7 +292,10 @@ class DcdcPage(Page):
                         [utils.HTML_DESIGN_EQUATIONS_TAG+utils.MODEL_DUTY_RATIO]
 
                     open_loop_data = utils.generate_open_loop(params_components, self.open_loop_equations, bode_x_range)
-                    pdb.set_trace()
+
+                    response = JsonResponse(open_loop_data)
+
+                    return response
                 else:
 
                     '''Update CONVERTER_ANALYSIS dictionary with error and

@@ -113,7 +113,7 @@
             <h3 class="text-center">Open Loop Bode Plots</h3>
 
             {% for equation in page.open_loop_equations.all %}
-                <div class="text-center black-border">
+                <div class="text-center">
                     <h5 class="text-center">{{equation.description}}</h5>
                     <div id="open_plot_{{ equation.description }}_mag"></div>
                     <div id= "open_plot_{{ equation.description }}_phase" style="margin-top: -10px;"></div>
@@ -133,23 +133,23 @@
     mags_output_impedance = JSON.parse("{{ page.MAGS_OI.mags_oi }}");
     phases_output_impedance = JSON.parse("{{ page.PHASE_OI.phase_oi }}");
 
-    out_imped_mag_div = "open_plot_Output Impedance_mag";
-    out_imped_phs_div = "open_plot_Output Impedance_phase";
-
     mags_input_impedance = JSON.parse("{{ page.MAGS_II.mags_ii }}");
     phases_input_impedance = JSON.parse("{{ page.PHASE_II.phase_ii }}");
 
-    in_imped_mag_div = "open_plot_Input Impedance_mag";
-    in_imped_phs_div = "open_plot_Input Impedance_phase";
-    
     mags_input_output_transfer = JSON.parse("{{ page.MAGS_IO.mags_io }}");
     phases_input_output_transfer = JSON.parse("{{ page.PHASE_IO.phase_io }}");
-
-    in_out_mag_div = "open_plot_Input to Output Transfer Function_mag";
-    in_out_phs_div = "open_plot_Input to Output Transfer Function_phase";
     
     mags_duty_output_transfer = JSON.parse("{{ page.MAGS_DO.mags_do }}");
     phases_duty_output_transfer = JSON.parse("{{ page.PHASE_DO.phase_do }}");
+
+    out_imped_mag_div = "open_plot_Output Impedance_mag";
+    out_imped_phs_div = "open_plot_Output Impedance_phase";
+
+    in_imped_mag_div = "open_plot_Input Impedance_mag";
+    in_imped_phs_div = "open_plot_Input Impedance_phase";
+
+    in_out_mag_div = "open_plot_Input to Output Transfer Function_mag";
+    in_out_phs_div = "open_plot_Input to Output Transfer Function_phase";
 
     duty_out_mag_div = "open_plot_Duty to Output Transfer Function_mag";
     duty_out_phs_div = "open_plot_Duty to Output Transfer Function_phase";
@@ -260,7 +260,19 @@ $(function() {
                 url: form.attr('action'),
                 data: form.serialize(),
                 success: function(json){
-
+                    graphs.forEach(function(graph){
+                        for(let div in json){
+                            if (graph.mag_plot_div == div){
+                                graph.mags = json[div][0];
+                                //graph.mags_max = Math.max(json[div][0]);
+                                //graph.mags_min = Math.min(json[div][0]);
+                                graph.phases = json[div][1];
+                                //graph.phases_max = Math.max(json[div][1]);
+                                //graph.phases_min = Math.min(json[div][1]);
+                                graph.redraw();
+                            }
+                        }
+                    });
                 },
                 error: function(json){
                     let jsonErrors = $.parseJSON(json.responseText)
