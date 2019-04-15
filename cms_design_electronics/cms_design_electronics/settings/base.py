@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     "cms_design_electronics.contact",
     "cms_design_electronics.utils",
 
+    #Wagtail menus integration
+    'wagtail.contrib.modeladmin',
+
     'wagtail.contrib.settings',
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
@@ -55,9 +58,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    #Wagtail menus integration
+    'wagtailmenus',
+    #Crispy form integration
+    'crispy_forms',
+
     'captcha',
     'wagtailcaptcha',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -89,6 +99,8 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 #To use settings in the template
                 'wagtail.contrib.settings.context_processors.settings',
+                #Wagtail menus integration
+                'wagtailmenus.context_processors.wagtailmenus',
             ],
         },
     },

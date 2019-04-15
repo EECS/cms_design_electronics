@@ -2,14 +2,14 @@
 
 {% block content %}
 <div class="jumbotron">
-    <h1 class="display-3">{{self.site_tagline}}</h1>
+    <h1 class="display-4">{{self.site_tagline}}</h1>
     <hr class="my-4">
     <div class="text-center">
         {% image self.banner_image original as img %}
         <img src="{{img.url}}" class="img-fluid" alt="{{img.alt}}" style="mix-blend-mode: multiply"/>
     </div>
 
-    <h3 class="display-4">{{self.site_subtagline |richtext}}</h3>
+    <h3 class="display-6">{{self.site_subtagline |richtext}}</h3>
     <p class="lead">
       <a class="btn btn-primary btn-lg" href="{{ self.banner_cta.url }}" role="button">Sign up</a>
     </p>

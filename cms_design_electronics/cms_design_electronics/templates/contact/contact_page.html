@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags crispy_forms_tags %}
 
 {% block content %}
 
@@ -12,7 +12,7 @@
         <form action="{% pageurl page %}" method="POST">
             {% csrf_token %}
             <ul class="contact-form">
-                {{ form.as_ul }}
+                {{ form|crispy }}
             </ul>
 
             <button type="submit" class="btn btn-outline-primary">
