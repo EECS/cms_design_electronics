@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "cms_design_electronics.site_settings",
     "cms_design_electronics.contact",
     "cms_design_electronics.utils",
+    "cms_design_electronics.design_center",
 
     #Wagtail menus integration
     'wagtail.contrib.modeladmin',

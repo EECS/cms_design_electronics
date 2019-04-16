@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% load wagtailimages_tags wagtailcore_tags %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="text-center">
+            <h2> <u> <a href="{{self.url}}">Design Center</a></u></h2>
+        </div>
+
+        <h3> DC/DC Converters</h3>
+        {% for dcdc in dcdc_pages %}
+            <div class="row">
+                <div class="col">
+                    <a href="{{ dcdc.url }}">
+                        {{ dcdc.design_name }}
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    {% image dcdc.design_image width-300 as dcdc_img %}
+
+                    <a href="{{ dcdc.url }}">
+                        <img src="{{dcdc_img.url}}" alt="{{dcdc_img.alt}}">
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+
+    var docHeight = $(window).height();
+    var footerHeight = $('#footer').height();
+    var footerTop = $('#footer').position().top + footerHeight;
+
+    if (footerTop < docHeight)
+        $('#footer').css('margin-top', 10+ (docHeight - footerTop) + 'px');
+});
+</script>
+{% endblock extra_js %}

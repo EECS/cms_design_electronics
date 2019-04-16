@@ -2,14 +2,18 @@
 
 <div class="container mb-sm-5 mt-sm-5">
     <div class="row">
-        <div class="col-md-5 offset-md-1 col-sm-12">
-            <h1>{{ self.title }}</h1>
+        <div class="col-md-6 offset-md-3 col-sm-12 text-primary">
+            <h1 class="text-center">{{ self.title }}</h1>
             {{ self.text|richtext }}
 
             {% if self.button_page %}
-                <a href="{{ self.button_page.url }}">{{ self.button_text }}</a>
+                <button class="btn btn-secondary">
+                    <a href="{{ self.button_page.url }}">{{ self.button_text }}</a>
+                </button>
             {% elif self.button_url %}
-                <a href="{{ self.button_url }}" target="_blank">{{ self.button_text }}</a>
+                <button class="btn btn-outline-primary">
+                    <a href="{{ self.button_url }}">{{ self.button_text }}</a>
+                </button>
             {% endif %}
         </div>
     </div>

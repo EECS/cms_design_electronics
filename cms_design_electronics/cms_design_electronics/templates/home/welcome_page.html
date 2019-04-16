@@ -2,16 +2,16 @@
 
 {% block content %}
 <div class="jumbotron">
-    <h1 class="display-4">{{self.site_tagline}}</h1>
+    <h1 class="variable-header">{{self.site_tagline}}</h1>
     <hr class="my-4">
     <div class="text-center">
         {% image self.banner_image original as img %}
         <img src="{{img.url}}" class="img-fluid" alt="{{img.alt}}" style="mix-blend-mode: multiply"/>
     </div>
 
-    <h3 class="display-6">{{self.site_subtagline |richtext}}</h3>
+    <h3 class="variable-subheader">{{self.site_subtagline |richtext}}</h3>
     <p class="lead">
-      <a class="btn btn-primary btn-lg" href="{{ self.banner_cta.url }}" role="button">Sign up</a>
+      <a class="btn btn-primary btn-lg" href="{{ self.banner_cta.url }}" role="button">Design Center</a>
     </p>
 </div>
 
@@ -20,4 +20,16 @@
     {% include_block block %}
 {% endfor %}
 
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .variable-header{
+        font-size: 5vmin;
+    }
+
+    .variable-subheader{
+        font-size: 3vmin;
+    }
+</style>
 {% endblock %}

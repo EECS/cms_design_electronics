@@ -3,7 +3,7 @@
 
 {% block content %}
 
-    <div class="container mt-5 mb-5 text-center">
+    <div class="container mt-5 mb-5">
         <h1>{{ page.title }}</h1>
         <p>
             {{ self.thank_you_text|richtext }}
@@ -11,3 +11,17 @@
     </div>
 
 {% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+
+    var docHeight = $(window).height();
+    var footerHeight = $('#footer').height();
+    var footerTop = $('#footer').position().top + footerHeight;
+
+    if (footerTop < docHeight)
+        $('#footer').css('margin-top', 10+ (docHeight - footerTop) + 'px');
+});
+</script>
+{% endblock extra_js %}
