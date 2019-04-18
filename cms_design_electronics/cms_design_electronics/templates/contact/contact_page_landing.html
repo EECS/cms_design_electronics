@@ -13,15 +13,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-$(document).ready(function() {
 
-    var docHeight = $(window).height();
-    var footerHeight = $('#footer').height();
-    var footerTop = $('#footer').position().top + footerHeight;
+<script src="/static/js/stuckFooter.js" type="text/javascript"></script>
 
-    if (footerTop < docHeight)
-        $('#footer').css('margin-top', 10+ (docHeight - footerTop) + 'px');
-});
-</script>
 {% endblock extra_js %}
